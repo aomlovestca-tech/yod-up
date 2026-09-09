@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="th">
+<head>
+<title>YOD UP! — Sales Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F4511E">
+
+<!-- Firebase 9 compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── DESIGN TOKENS ── */
+:root{
+  --bg:       #F0F0F0;
+  --bg2:      #E8E8E8;
+  --surface:  #FFFFFF;
+  --card:     #FFFFFF;
+  --card2:    #FFF5F2;
+  --border:   rgba(0,0,0,.08);
+  --border2:  rgba(0,0,0,.07);
+  --accent:   #F4511E;
+  --accent2:  #D43D0E;
+  --accent3:  rgba(244,81,30,.10);
+  --glow:     rgba(244,81,30,.18);
+  --danger:   #DC2626;
+  --warn:     #D97706;
+  --info:     #0284C7;
+  --text:     #111827;
+  --sub:      #6B7280;
+  --muted:    #9CA3AF;
+  --num:      'Barlow Condensed',system-ui;
+  --body:     'Inter',system-ui;
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{
+  background:#F0F0F0;
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--body);font-weight:400;
+  min-height:100dvh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none!important}
+.num{font-family:var(--num)}
+button{font-family:var(--body);cursor:pointer}
+select,input{font-family:var(--body)}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:60px;gap:12px;
+  background:rgba(255,255,255,.92);
+  border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.logo{
+  font-family:var(--num);font-size:1.5rem;font-weight:900;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);flex-shrink:0;
+  text-shadow:0 0 24px rgba(244,81,30,.35);
+}
+.topbar-center{
+  display:flex;align-items:center;gap:8px;
+  color:var(--sub);font-size:.8rem;font-weight:500;letter-spacing:.2px;
+}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;
+  box-shadow:0 0 6px var(--accent);
+  animation:pulse 2.5s ease-in-out infinite;
+}
+.live-dot.off{background:var(--muted);box-shadow:none;animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.topbar-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--border2);
+  color:var(--sub);padding:7px 14px;border-radius:8px;
+  font-size:.8rem;font-weight:600;letter-spacing:.3px;
+  transition:all .15s;white-space:nowrap;
+}
+.topbar-btn:hover{color:var(--accent);border-color:var(--border);background:var(--accent3)}
+
+/* ── DASHBOARD LAYOUT ── */
+.dash{padding:16px;max-width:1280px;margin:0 auto;
+  display:grid;gap:16px;
+  grid-template-columns:300px 1fr;
+  grid-template-areas:"left right";
+}
+@media(max-width:820px){
+  .dash{grid-template-columns:1fr;padding:12px;
+    grid-template-areas:"left""right"}
+}
+.dash-left{grid-area:left;display:flex;flex-direction:column;gap:12px}
+.dash-right{grid-area:right;display:flex;flex-direction:column;gap:12px}
+
+/* ── CARD BASE ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 6px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+}
+.card-pad{padding:20px}
+
+/* ── RING CARD ── */
+.ring-card{
+  background:#F4511E;border:none;border-radius:16px;
+  padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:16px;
+  box-shadow:0 4px 24px rgba(244,81,30,.30);
+}
+@media(max-width:820px){
+  .ring-card{flex-direction:row;padding:16px 20px;gap:20px}
+}
+.ring-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+@media(max-width:820px){.ring-wrap{width:120px;height:120px}}
+.ring-svg{transform:rotate(-90deg);overflow:visible;width:100%;height:100%}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.25);stroke-width:18}
+.ring-fg{fill:none;stroke-width:18;stroke-linecap:round;
+  stroke-dasharray:502;stroke-dashoffset:502;
+  transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1);
+  filter:drop-shadow(0 0 12px rgba(255,255,255,.6));
+}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:var(--num);font-size:2.8rem;font-weight:900;line-height:1;color:#fff;transition:all .4s}
+@media(max-width:820px){.ring-pct{font-size:2.2rem}}
+.ring-lbl{font-size:.65rem;color:rgba(255,255,255,.7);letter-spacing:.8px;text-transform:uppercase;font-weight:600;margin-top:1px}
+.ring-total{font-family:var(--num);font-size:.95rem;font-weight:600;color:rgba(255,255,255,.85)}
+.ring-info{flex:1;min-width:0}
+.ring-info .big-label{font-size:.7rem;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:4px}
+.ring-info .big-val{font-family:var(--num);font-size:1.8rem;font-weight:700;color:#fff;line-height:1}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:14px;
+}
+.stat-val{font-family:var(--num);font-size:1.5rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat-lbl{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin-top:4px}
+.ca{color:var(--accent)}.cs{color:#16A34A}.cw{color:var(--warn)}.ci{color:var(--info)}
+/* fix s-days / s-avg inline color from old dark theme */
+.stat{box-shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* ── RACE TRACK ── */
+.race-track{
+  background:#fff;border:1px solid var(--border2);
+  border-radius:14px;padding:14px 16px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+}
+.race-labels{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;font-size:.7rem;font-weight:600;}
+.race-labels .rl-start{color:var(--sub)}
+.race-labels .rl-pct{font-family:var(--num);font-size:.95rem;font-weight:700;color:var(--accent)}
+.race-labels .rl-end{color:var(--sub);text-align:right}
+.race-lane{
+  position:relative;height:40px;background:#EBEBEB;
+  border-radius:20px;overflow:visible;
+}
+.race-fill{
+  position:absolute;top:0;left:0;bottom:0;border-radius:20px;
+  background:linear-gradient(90deg,#D43D0E,#F4511E);
+  transition:width 1.4s cubic-bezier(.4,0,.2,1);width:0%;
+  max-width:calc(100% - 44px);
+}
+.race-runner{
+  position:absolute;top:50%;
+  transform:translateY(-50%);
+  transition:left 1.4s cubic-bezier(.4,0,.2,1);left:0%;
+  z-index:2;
+  animation:rocket-shake .12s ease-in-out infinite;
+}
+@keyframes rocket-shake{
+  0%,100%{transform:translateY(-50%) translateY(0px)}
+  33%{transform:translateY(-50%) translateY(-2px) rotate(2deg)}
+  66%{transform:translateY(-50%) translateY(1px) rotate(-1deg)}
+}
+.flame{animation:flame-flicker .1s ease-in-out infinite alternate;transform-origin:right center}
+@keyframes flame-flicker{
+  from{transform:scaleX(1) scaleY(1)}
+  to{transform:scaleX(1.3) scaleY(.8)}
+}
+.race-finish{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  font-size:1.5rem;line-height:1;z-index:2;
+}
+.race-amount{display:flex;justify-content:space-between;
+  margin-top:7px;font-size:.7rem;color:var(--sub);}
+.race-amount span:last-child{color:var(--text);font-weight:600}
+
+/* ── AVG BAR ── */
+.avg-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#fff;border:1px solid var(--border2);
+  border-radius:12px;padding:12px 16px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.avg-bar .label{font-size:.8rem;color:var(--sub)}
+.avg-bar .val{font-family:var(--num);font-size:1.1rem;font-weight:700;color:var(--accent)}
+
+/* ── SCOREBOARD ── */
+.scoreboard{background:#fff;border:1px solid var(--border2);border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+.sb-head{
+  display:grid;grid-template-columns:minmax(110px,210px) 1fr 60px;
+  padding:12px 20px;font-size:.67rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  background:#FFF8F6;
+}
+.ch-row{
+  display:grid;grid-template-columns:minmax(110px,210px) 1fr 60px;
+  align-items:center;padding:14px 20px;
+  border-bottom:1px solid rgba(0,0,0,.05);
+  border-left:3px solid transparent;
+  transition:background .12s;
+}
+.ch-row:last-child{border-bottom:none}
+.ch-row:hover{background:#FFF8F6}
+@media(max-width:400px){
+  .sb-head,.ch-row{grid-template-columns:minmax(90px,150px) 1fr 48px;padding:12px 14px}
+}
+.ch-left{display:flex;align-items:center;gap:10px}
+.ch-icon{
+  flex-shrink:0;width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:#F4511E;
+  border:none;
+}
+.ch-icon svg{display:block}
+.ch-name{font-size:.85rem;font-weight:600;line-height:1.2;color:var(--text)}
+.ch-today-tag{font-size:.65rem;color:#F4511E;font-weight:600;margin-top:1px}
+.bar-wrap{padding-right:12px;min-width:0}
+.bar-bg{height:6px;background:#EBEBEB;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(.4,0,.2,1);min-width:2px}
+.bar-label{font-size:.65rem;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-pct{font-family:var(--num);font-size:1.15rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+.tag-first{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:#FEF0EC;color:#F4511E;white-space:nowrap;border:1px solid rgba(244,81,30,.18)}
+
+/* ── MOTIVE BANNER ── */
+.motive{
+  background:linear-gradient(135deg,rgba(182,255,86,.08),rgba(182,255,86,.03));
+  border:1px solid var(--border);border-radius:16px;
+  padding:16px 24px;text-align:center;font-size:.95rem;font-weight:600;color:var(--sub);
+}
+.motive span{color:var(--text)}
+
+/* ── OVERLAY / MODAL ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.8);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:100;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+@media(min-width:480px){.overlay{align-items:center}}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:20px 20px 0 0;padding:28px 24px 36px;
+  width:100%;max-width:420px;max-height:96dvh;overflow-y:auto;
+  transform:translateY(40px);transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+@media(min-width:480px){.modal{border-radius:20px;padding:32px;transform:translateY(16px)}}
+.overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:var(--num);font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:20px;letter-spacing:.5px}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:16px 0}
+.pin-d{
+  width:56px;height:60px;border:1.5px solid var(--border2);
+  border-radius:12px;background:var(--card);color:var(--text);
+  font-family:var(--num);font-size:1.8rem;font-weight:700;
+  text-align:center;outline:none;transition:border-color .15s;
+  -webkit-text-security:disc;
+}
+.pin-d:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent3)}
+.err-txt{color:var(--danger);font-size:.8rem;text-align:center;min-height:20px;font-weight:600}
+
+/* ── ADMIN ── */
+.admin-wrap{padding:16px;max-width:680px;margin:0 auto;padding-bottom:40px}
+.tabs{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;
+  padding-bottom:1px;border-bottom:1px solid var(--border2);}
+.tab-btn{
+  padding:8px 16px;border-radius:8px;border:none;
+  background:none;color:var(--muted);
+  font-size:.82rem;font-weight:600;white-space:nowrap;
+  transition:all .15s;flex-shrink:0;
+}
+.tab-btn.on{background:var(--accent3);color:var(--accent);border:1px solid var(--border)}
+.fg{margin-bottom:14px}
+.flbl{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin-bottom:5px}
+.finput{
+  width:100%;background:var(--card);border:1.5px solid var(--border2);
+  border-radius:10px;padding:10px 13px;color:var(--text);
+  font-size:.9rem;outline:none;transition:all .15s;
+  appearance:none;-webkit-appearance:none;
+}
+.finput:focus{border-color:var(--accent);background:var(--card2);box-shadow:0 0 0 3px var(--accent3)}
+.finput:disabled{opacity:.3;cursor:not-allowed}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.frow{grid-template-columns:1fr}}
+.btn{padding:12px 24px;border-radius:10px;border:none;
+  font-size:.9rem;font-weight:700;transition:all .15s;letter-spacing:.3px;}
+.btn-primary{
+  background:var(--accent);color:#fff;width:100%;margin-top:20px;
+  font-weight:800;letter-spacing:.5px;
+}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(244,81,30,.30)}
+.btn-ghost{background:var(--card);color:var(--sub);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text)}
+.ctr-row{
+  display:grid;grid-template-columns:1fr 120px auto;gap:10px;
+  align-items:center;padding:10px 0;border-bottom:1px solid var(--border2);
+}
+.ctr-name{font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--text)}
+.ctr-check{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted);cursor:pointer;white-space:nowrap}
+.ctr-check input{accent-color:var(--accent)}
+.dch-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.dch-lbl{font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--text)}
+.section-hd{font-size:.67rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--muted);margin:24px 0 10px}
+.hist-item{
+  background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+  border-left:3px solid var(--accent);
+}
+.hist-date{font-size:.82rem;color:var(--sub);font-weight:600}
+.hist-chs{font-size:.7rem;color:var(--muted);margin-top:3px;line-height:1.7}
+.hist-total{font-family:var(--num);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+.hist-edit{font-size:.7rem;color:var(--muted);background:none;border:1px solid var(--border2);
+  border-radius:6px;padding:4px 10px;transition:.15s;margin-top:4px;white-space:nowrap}
+.hist-edit:hover{color:var(--accent);border-color:var(--border)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--accent);color:#fff;
+  padding:11px 22px;border-radius:50px;font-weight:800;font-size:.85rem;
+  z-index:400;opacity:0;transition:.3s cubic-bezier(.4,0,.2,1);
+  white-space:nowrap;box-shadow:0 4px 20px rgba(244,81,30,.35);
+  font-family:var(--body);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.err{background:var(--danger);color:#fff;box-shadow:0 4px 20px rgba(255,87,87,.3)}
+
+/* ── SETUP WARNING ── */
+.setup-warn{
+  margin:12px 16px 0;padding:12px 16px;
+  background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);
+  border-radius:10px;font-size:.8rem;color:var(--warn);line-height:1.6;
+}
+.setup-warn code{background:rgba(255,181,71,.15);border-radius:4px;
+  padding:1px 6px;font-family:monospace;font-size:.75rem}
+</style>
+</head>
+<body>
+
+<!-- ═══════ DASHBOARD VIEW ═══════ -->
+<div id="view-dashboard" class="view" hidden>
+  <div id="setup-warn" class="setup-warn" hidden>
+    ⚙️ ยังไม่ได้ตั้งค่า Firebase — ข้อมูลบันทึกเฉพาะ Browser นี้ แก้ไข <code>FIREBASE_CONFIG</code> เพื่อ sync ทั้งทีม
+  </div>
+  <div class="topbar">
+    <div class="logo">YOD UP!</div>
+    <div class="topbar-center">
+      <div id="conn-dot" class="live-dot off"></div>
+      <span id="db-month-label">—</span>
+    </div>
+    <button class="topbar-btn" onclick="openPin()">⚙ Admin</button>
+  </div>
+
+  <div class="dash">
+    <!-- LEFT -->
+    <div class="dash-left">
+
+      <!-- Ring + Month stats (mobile: row layout) -->
+      <div class="ring-card">
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FFD0B5"/>
+                <stop offset="100%" stop-color="#fff"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="80" cy="80" r="68"/>
+            <circle id="ring-trail" class="ring-fg" cx="80" cy="80" r="68" stroke="url(#rg)"/>
+          </svg>
+          <div class="ring-center">
+            <div id="ring-pct" class="ring-pct num">0%</div>
+            <div class="ring-lbl">ของเป้า</div>
+          </div>
+        </div>
+        <div class="ring-info">
+          <div class="big-label">ยอดสะสมเดือนนี้</div>
+          <div id="ring-amount" class="big-val num" style="color:#fff">฿0</div>
+          <div style="margin-top:10px;font-size:.75rem;color:rgba(255,255,255,.75)">เป้าหมาย <span id="ring-target" style="color:#fff;font-weight:600">฿0</span></div>
+        </div>
+      </div>
+
+      <!-- Stats 2×2 -->
+      <div class="stats-grid">
+        <div class="stat" style="background:#fff">
+          <div id="s-today" class="stat-val ca">฿0</div>
+          <div class="stat-lbl">ยอดวันนี้</div>
+        </div>
+        <div class="stat" style="background:#F4511E;border-color:transparent">
+          <div id="s-remain" class="stat-val" style="color:#fff">฿0</div>
+          <div class="stat-lbl" style="color:rgba(255,255,255,.80)">ต้องทำอีก</div>
+        </div>
+        <div class="stat" style="background:#fff">
+          <div id="s-days" class="stat-val ca">0</div>
+          <div class="stat-lbl">วันที่เหลือ</div>
+        </div>
+        <div class="stat" style="background:#fff">
+          <div id="s-avg" class="stat-val ca">฿0</div>
+          <div class="stat-lbl">เฉลี่ย/วัน</div>
+        </div>
+      </div>
+
+      <!-- Avg row hidden on mobile (shown in stats) — keep motivation -->
+      <div class="avg-bar">
+        <span class="label">เฉลี่ยต่อวันที่ต้องทำ</span>
+        <span id="s-avg2" class="val">฿0</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Race track + Scoreboard -->
+    <div class="dash-right">
+
+      <!-- Race track progress (top of right panel) -->
+      <div class="race-track">
+        <div class="race-labels">
+          <span class="rl-start">ยอดสะสม</span>
+          <span class="rl-pct" id="race-pct">0%</span>
+          <span class="rl-end">เป้าหมาย</span>
+        </div>
+        <div class="race-lane">
+          <div class="race-fill" id="race-fill"></div>
+          <span class="race-runner" id="race-runner"><svg width="52" height="36" viewBox="0 0 130 90" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rktbody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0e0e0"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="rktwindow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ef0ff"/>
+      <stop offset="100%" stop-color="#1aacff"/>
+    </linearGradient>
+  </defs>
+  <g class="flame">
+    <ellipse cx="14" cy="45" rx="18" ry="7" fill="#FF9500" opacity=".9"/>
+    <ellipse cx="8" cy="45" rx="10" ry="5" fill="#FFD60A"/>
+    <ellipse cx="4" cy="45" rx="5" ry="3" fill="#fff" opacity=".8"/>
+  </g>
+  <ellipse cx="70" cy="45" rx="45" ry="18" fill="url(#rktbody)"/>
+  <path d="M112 45 Q130 45 118 30 Q115 27 112 27 Z" fill="#ddd"/>
+  <path d="M112 45 Q130 45 118 60 Q115 63 112 63 Z" fill="#ddd"/>
+  <circle cx="90" cy="45" r="10" fill="url(#rktwindow)" stroke="#aaa" stroke-width="2"/>
+  <circle cx="88" cy="43" r="3" fill="white" opacity=".5"/>
+  <path d="M42 27 L55 27 L60 45 L42 45 Z" fill="#FF9D7A"/>
+  <path d="M42 63 L55 63 L60 45 L42 45 Z" fill="#FF9D7A"/>
+  <ellipse cx="26" cy="45" rx="6" ry="12" fill="#555" opacity=".4"/>
+</svg></span>
+          <span class="race-finish"><svg width="28" height="30" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE566"/><stop offset="50%" stop-color="#F5A623"/><stop offset="100%" stop-color="#C17F00"/></linearGradient></defs><path fill="url(#gold)" d="M19 5h-2V3H7v2H5C3.9 5 3 5.9 3 7v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg></span>
+        </div>
+        <div class="race-amount">
+          <span id="race-cur">฿0</span>
+          <span id="race-tgt">฿0</span>
+        </div>
+      </div>
+
+      <div class="scoreboard">
+        <div class="sb-head">
+          <span>ช่องทาง</span><span>ความคืบหน้า</span><span style="text-align:right">%</span>
+        </div>
+        <div id="ch-rows"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ PIN MODAL ═══════ -->
+<div class="overlay" id="overlay-pin" onclick="closePin(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">🔐 Admin PIN</div>
+    <div class="pin-row">
+      <input type="tel" class="pin-d" id="p0" maxlength="1" oninput="pinIn(event,0)" onkeydown="pinKey(event,0)" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-d" id="p1" maxlength="1" oninput="pinIn(event,1)" onkeydown="pinKey(event,1)" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-d" id="p2" maxlength="1" oninput="pinIn(event,2)" onkeydown="pinKey(event,2)" autocomplete="off" inputmode="numeric">
+      <input type="tel" class="pin-d" id="p3" maxlength="1" oninput="pinIn(event,3)" onkeydown="pinKey(event,3)" autocomplete="off" inputmode="numeric">
+    </div>
+    <div class="err-txt" id="pin-err"></div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closePin()">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN VIEW ═══════ -->
+<div id="view-admin" class="view" hidden>
+  <div class="topbar">
+    <button class="topbar-btn" onclick="showView('dashboard')">← กลับ</button>
+    <div class="logo" style="font-size:1.1rem">Admin</div>
+    <div style="width:80px"></div>
+  </div>
+  <div class="admin-wrap">
+    <div class="tabs">
+      <button class="tab-btn on" id="tab-daily"    onclick="switchTab('daily')">📝 กรอกยอด</button>
+      <button class="tab-btn"   id="tab-settings"  onclick="switchTab('settings')">⚙ ตั้งค่า</button>
+      <button class="tab-btn"   id="tab-history"   onclick="switchTab('history')">📋 ประวัติ</button>
+    </div>
+
+    <!-- DAILY -->
+    <div id="tc-daily">
+      <div class="fg">
+        <label class="flbl">วันที่</label>
+        <input type="date" class="finput" id="in-date" onchange="loadDayData()">
+      </div>
+      <div id="daily-ch-inputs"></div>
+      <button class="btn btn-primary" onclick="saveDailySales()">💾 บันทึกยอดขาย</button>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tc-settings" hidden>
+      <div class="frow">
+        <div class="fg"><label class="flbl">เดือน</label><select class="finput" id="in-month"></select></div>
+        <div class="fg"><label class="flbl">ปี (พ.ศ.)</label><input type="number" class="finput" id="in-year" min="2560" max="2620"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="flbl">จำนวนวันในเดือน</label><input type="number" class="finput" id="in-days" min="28" max="31"></div>
+        <div class="fg"><label class="flbl">เป้าหมายรวม (฿)</label><input type="number" class="finput" id="in-target" min="0"></div>
+      </div>
+      <div class="fg">
+        <label class="flbl">PIN ผู้ดูแล (4 ตัวเลข)</label>
+        <input type="password" class="finput" id="in-pin" maxlength="4" placeholder="เว้นว่างถ้าไม่เปลี่ยน" inputmode="numeric">
+      </div>
+      <div class="section-hd">เป้าหมายต่อช่องทาง</div>
+      <div id="ch-targets-inputs"></div>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="tc-history" hidden>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════
+   🔥 FIREBASE CONFIG
+   ════════════════════════════════════════
+   วางค่าจาก Firebase Console > Project Settings > Web App ตรงนี้
+   ════════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDmHILBVVFC1_tOrfXNC4XEEkRHbJ5J298",
+  authDomain:        "yod-up.firebaseapp.com",
+  projectId:         "yod-up",
+  storageBucket:     "yod-up.firebasestorage.app",
+  messagingSenderId: "1079054193408",
+  appId:             "1:1079054193408:web:2e9d2e5d6853d6439d19e5"
+};
+/* ═══════════════════════════════════════ */
+
+const MONTHS_TH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+/* ── Brand SVG icons (white, 18×18) ── */
+const ICON_SHOPEE=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C9.79 2 8 3.79 8 6H5.5L4 20h16L18.5 6H16c0-2.21-1.79-4-4-4z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="9" cy="10" r="1" fill="white"/><circle cx="15" cy="10" r="1" fill="white"/><path d="M9 14s1 2 3 2 3-2 3-2" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+const ICON_TIKTOK=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34l.01-8.56a8.18 8.18 0 004.78 1.53V4.83a4.85 4.85 0 01-1.02-.14z"/></svg>`;
+const ICON_LAZADA=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.21 4H3V2H1v2h2l3.6 7.59L5.25 14c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h14v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.46 4H5.21z"/></svg>`;
+const ICON_GLOBE=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+
+const CH_META = [
+  {id:'shopee_rtd', name:'SHOPEE RTD',             icon:ICON_SHOPEE,  color:'#F4511E'},
+  {id:'shopee_wpc', name:'SHOPEE WPC',             icon:ICON_SHOPEE,  color:'#FF7C4D'},
+  {id:'shopee_bat', name:'SHOPEE WPC แบตเตอรี่',  icon:ICON_SHOPEE,  color:'#FF9D7A'},
+  {id:'tiktok_rtd', name:'TikTok RTD',             icon:ICON_TIKTOK,  color:'#D43D0E'},
+  {id:'tiktok_new', name:'TikTok จับไมค์ใส่เกียร์',icon:ICON_TIKTOK,  color:'#F4511E'},
+  {id:'lazada',     name:'Lazada',                 icon:ICON_LAZADA,  color:'#FF6B35'},
+  {id:'website',    name:'Website',                icon:ICON_GLOBE,   color:'#3B82F6'},
+];
+
+const DEFAULT_SETTINGS = {
+  month:'กันยายน', year:'2569', monthDays:30, totalTarget:265000, pin:'1234',
+  monthKey:'2026-09',
+  channels:[
+    {id:'shopee_rtd',target:30000, hasTarget:true},
+    {id:'shopee_wpc',target:20000, hasTarget:true},
+    {id:'shopee_bat',target:0,     hasTarget:false},
+    {id:'tiktok_rtd',target:200000,hasTarget:true},
+    {id:'tiktok_new',target:0,     hasTarget:false},
+    {id:'lazada',    target:15000, hasTarget:true},
+    {id:'website',   target:0,     hasTarget:false},
+  ],
+};
+
+let fsDb=null, settings=null, salesData={}, curView='', curTab='daily';
+
+const $    = id=>document.getElementById(id);
+const fmtN = n =>Math.round(n||0).toLocaleString('th-TH');
+const fmtB = n =>'฿'+fmtN(n);
+const today= ()=>new Date().toISOString().slice(0,10);
+
+function getMonthKey(s){
+  if(s&&s.monthKey) return s.monthKey;
+  const y=parseInt(s.year||2026)-543, mi=MONTHS_TH.indexOf(s.month||'กันยายน');
+  return `${y}-${String(mi+1).padStart(2,'0')}`;
+}
+
+function daysLeft(s){
+  const y=parseInt(s.year)-543, mi=MONTHS_TH.indexOf(s.month);
+  if(mi<0) return 0;
+  const last=new Date(y,mi+1,0), now=new Date(); now.setHours(0,0,0,0);
+  return Math.max(0,Math.round((last-now)/86400000));
+}
+
+function calcTotals(){
+  const mk=settings?getMonthKey(settings):null, tod=today();
+  const grand={}, todayTot={};
+  CH_META.forEach(c=>{grand[c.id]=0;todayTot[c.id]=0;});
+  let gSum=0, tSum=0;
+  Object.entries(salesData).forEach(([d,row])=>{
+    if(!mk||!d.startsWith(mk)) return;
+    CH_META.forEach(c=>{const v=parseFloat(row[c.id]||0);grand[c.id]+=v;gSum+=v;});
+    if(d===tod) CH_META.forEach(c=>{todayTot[c.id]=parseFloat(row[c.id]||0);tSum+=parseFloat(row[c.id]||0);});
+  });
+  return {grand,grandSum:gSum,todayTot,todaySum:tSum};
+}
+
+function motivation(pct){
+  if(pct>=100) return '🏆 บรรลุเป้าหมาย! ยอดเยี่ยมมาก ทีม TCA! 🎉';
+  if(pct>=90)  return '⚡ เกือบถึงแล้ว! สู้ต่อไป อีกนิดเดียว!';
+  if(pct>=70)  return '🔥 ดีมาก! ยังมีเวลา ไปต่อกันได้เลย!';
+  if(pct>=50)  return '🎯 ครึ่งทางแล้ว! เดินหน้าต่อ อย่าหยุด!';
+  if(pct>=25)  return '💪 เริ่มต้นได้ดี! ทุกออเดอร์มีความหมาย!';
+  return '🚀 มาลุยกันเลย! เป้าหมายอยู่ตรงหน้า!';
+}
+
+function renderDash(){
+  if(!settings) return;
+  const {grand,grandSum,todaySum}=calcTotals();
+  const tgt=settings.totalTarget||0, remain=Math.max(0,tgt-grandSum);
+  const pct=tgt>0?Math.min(100,(grandSum/tgt)*100):0;
+  const dl=daysLeft(settings), avg=dl>0?remain/dl:remain;
+
+  // Topbar
+  $('db-month-label').textContent=`${settings.month||''} ${settings.year||''}`;
+
+  // Ring (r=68, circ=2π×68≈427)
+  const circ=2*Math.PI*68;
+  const trail=$('ring-trail');
+  trail.style.strokeDasharray=circ;
+  trail.style.strokeDashoffset=circ*(1-pct/100);
+  $('ring-pct').textContent=Math.round(pct)+'%';
+  $('ring-amount').textContent=fmtB(grandSum);
+  $('ring-target').textContent=fmtB(tgt);
+
+  // Race track
+  const racePct=Math.min(pct,100);
+  $('race-pct').textContent=Math.round(racePct)+'%';
+  $('race-fill').style.width=racePct+'%';
+  $('race-runner').style.left='calc('+racePct+'% - 18px)';
+  // keep rocket always
+  $('race-cur').textContent=fmtB(grandSum);
+  $('race-tgt').textContent=fmtB(tgt);
+
+  // Stats
+  $('s-today').textContent  =fmtB(todaySum);
+  $('s-remain').textContent =fmtB(remain);
+  $('s-days').textContent   =dl;
+  $('s-avg').textContent    =fmtB(avg);
+  $('s-avg2').textContent   =fmtB(avg);
+
+  // Channels
+  const chs=settings.channels||DEFAULT_SETTINGS.channels;
+  const mk=getMonthKey(settings);
+  const todayRow=salesData[today()];
+  const todayInM=todayRow&&(todayRow.month===mk||today().startsWith(mk));
+
+  $('ch-rows').innerHTML=CH_META.map(meta=>{
+    const ch=chs.find(c=>c.id===meta.id)||{target:0,hasTarget:false};
+    const amt=grand[meta.id]||0, tgt2=ch.target||0;
+    const pct2=ch.hasTarget&&tgt2>0?Math.min(100,(amt/tgt2)*100):null;
+    const todayV=todayInM?parseFloat(todayRow[meta.id]||0):0;
+
+    const bar=ch.hasTarget
+      ?`<div class="bar-bg"><div class="bar-fill" style="width:${pct2||0}%;background:${meta.color}"></div></div>
+        <div class="bar-label">${fmtB(amt)} / ${fmtB(tgt2)}</div>`
+      :`<div class="bar-bg"><div class="bar-fill" style="width:100%;background:${meta.color};opacity:.2"></div></div>
+        <div class="bar-label">${fmtB(amt)} สะสม</div>`;
+
+    const pctCell=ch.hasTarget
+      ?`<span style="color:${pct2>=100?'#16A34A':pct2>=70?'#D97706':'#F4511E'}">${Math.round(pct2||0)}%</span>`
+      :`<span class="tag-first">ออเดอร์แรก</span>`;
+
+    return`<div class="ch-row" style="border-left-color:${meta.color}">
+      <div class="ch-left">
+        <span class="ch-icon">${meta.icon}</span>
+        <div>
+          <div class="ch-name">${meta.name}</div>
+          ${todayV>0?`<div class="ch-today-tag">+${fmtB(todayV)} วันนี้</div>`:''}
+        </div>
+      </div>
+      <div class="bar-wrap">${bar}</div>
+      <div class="ch-pct">${pctCell}</div>
+    </div>`;
+  }).join('');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>{v.hidden=true;});
+  const v=$('view-'+name); if(v) v.hidden=false;
+  curView=name;
+  if(name==='admin')     renderAdmin();
+  if(name==='dashboard') renderDash();
+}
+
+function openPin(){
+  ['p0','p1','p2','p3'].forEach(id=>{$(id).value='';});
+  $('pin-err').textContent='';
+  $('overlay-pin').classList.add('open');
+  setTimeout(()=>$('p0').focus(),80);
+}
+function closePin(e){
+  if(e&&e.target!==$('overlay-pin')) return;
+  $('overlay-pin').classList.remove('open');
+}
+function pinIn(e,i){
+  const v=e.target.value.replace(/\D/g,'').slice(-1);
+  e.target.value=v;
+  if(v&&i<3) $('p'+(i+1)).focus();
+  if(i===3&&v) checkPin();
+}
+function pinKey(e,i){
+  if(e.key==='Backspace'&&!e.target.value&&i>0) $('p'+(i-1)).focus();
+  if(e.key==='Enter') checkPin();
+}
+function checkPin(){
+  const entered=['p0','p1','p2','p3'].map(id=>$(id).value).join('');
+  const correct=settings?(settings.pin||'1234'):'1234';
+  if(entered===correct){
+    $('overlay-pin').classList.remove('open');
+    showView('admin');
+  } else {
+    $('pin-err').textContent='❌ PIN ไม่ถูกต้อง';
+    ['p0','p1','p2','p3'].forEach(id=>{$(id).value='';});
+    $('p0').focus();
+  }
+}
+
+function switchTab(tab){
+  ['daily','settings','history'].forEach(t=>{
+    $('tab-'+t).classList.toggle('on',t===tab);
+    $('tc-'+t).hidden=t!==tab;
+  });
+  curTab=tab;
+  if(tab==='history') renderHistory();
+}
+
+function renderAdmin(){
+  if(!settings) return;
+  const savedDate=$('in-date').value||today();
+
+  $('daily-ch-inputs').innerHTML=CH_META.map(m=>`
+    <div class="dch-row">
+      <div class="dch-lbl">${m.icon} ${m.name}</div>
+      <input type="number" class="finput" id="d-${m.id}" placeholder="0" min="0" inputmode="decimal">
+    </div>`).join('');
+
+  $('in-date').value=savedDate;
+  loadDayData();
+
+  $('in-month').innerHTML=MONTHS_TH.map(m=>`<option ${m===settings.month?'selected':''}>${m}</option>`).join('');
+  $('in-year').value=settings.year;
+  $('in-days').value=settings.monthDays;
+  $('in-target').value=settings.totalTarget;
+  $('in-pin').value='';
+
+  const chs=settings.channels||DEFAULT_SETTINGS.channels;
+  $('ch-targets-inputs').innerHTML=CH_META.map(meta=>{
+    const ch=chs.find(c=>c.id===meta.id)||{target:0,hasTarget:false};
+    return`<div class="ctr-row">
+      <div class="ctr-name">${meta.icon} ${meta.name}</div>
+      <input type="number" class="finput" id="ct-${meta.id}" value="${ch.target}" ${!ch.hasTarget?'disabled':''} inputmode="decimal">
+      <label class="ctr-check">
+        <input type="checkbox" id="cth-${meta.id}" ${ch.hasTarget?'checked':''}
+               onchange="toggleCh('${meta.id}')"> มีเป้า
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function toggleCh(id){$('ct-'+id).disabled=!$('cth-'+id).checked;}
+
+function loadDayData(){
+  const date=$('in-date').value, mk=settings?getMonthKey(settings):null, row=salesData[date];
+  CH_META.forEach(ch=>{
+    const inp=$('d-'+ch.id);
+    if(inp) inp.value=(row&&(!mk||row.month===mk||date.startsWith(mk)))?(row[ch.id]||''):'';
+  });
+}
+
+async function saveDailySales(){
+  const date=$('in-date').value;
+  if(!date){showToast('⚠ กรุณาเลือกวันที่',true);return;}
+  const mk=settings?getMonthKey(settings):'2026-09';
+  const rec={month:mk};
+  CH_META.forEach(ch=>{rec[ch.id]=parseFloat($('d-'+ch.id).value||'0');});
+
+  // Optimistic update
+  salesData[date]=rec;
+  try{localStorage.setItem('sd_sales',JSON.stringify(salesData));}catch(_){}
+  renderDash();
+
+  if(fsDb){
+    try{
+      await fsDb.doc('sales/'+date).set(rec);
+      showToast('✅ บันทึกและ sync แล้ว!');
+    }catch(e){showToast('⚠ บันทึกใน Browser แล้ว แต่ sync ไม่สำเร็จ',true);console.error(e);}
+  } else {
+    showToast('✅ บันทึกแล้ว');
+  }
+}
+
+async function saveSettings(){
+  const month=$('in-month').value, year=$('in-year').value;
+  const ceYear=parseInt(year)-543, mIdx=MONTHS_TH.indexOf(month);
+  const monthKey=`${ceYear}-${String(mIdx+1).padStart(2,'0')}`;
+  const newPin=$('in-pin').value;
+  const pin=newPin.length===4?newPin:(settings?settings.pin:'1234');
+  const channels=CH_META.map(m=>({
+    id:m.id, target:parseFloat($('ct-'+m.id).value||'0'), hasTarget:$('cth-'+m.id).checked
+  }));
+  const ns={month,year,monthKey,monthDays:parseInt($('in-days').value||'30'),
+    totalTarget:parseFloat($('in-target').value||'0'),pin,channels};
+
+  settings=ns;
+  try{localStorage.setItem('sd_settings',JSON.stringify(ns));}catch(_){}
+  renderDash();
+
+  if(fsDb){
+    try{await fsDb.doc('settings/current').set(ns);showToast('✅ บันทึกและ sync แล้ว!');}
+    catch(e){showToast('⚠ บันทึกใน Browser แล้ว แต่ sync ไม่สำเร็จ',true);console.error(e);}
+  } else {
+    showToast('✅ บันทึกการตั้งค่าแล้ว');
+  }
+}
+
+function renderHistory(){
+  const mk=settings?getMonthKey(settings):null;
+  const entries=Object.entries(salesData)
+    .filter(([d])=>!mk||d.startsWith(mk))
+    .sort(([a],[b])=>b.localeCompare(a));
+  if(!entries.length){
+    $('history-list').innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:.9rem">ยังไม่มีข้อมูลในเดือนนี้</div>';
+    return;
+  }
+  $('history-list').innerHTML=entries.map(([date,row])=>{
+    const total=CH_META.reduce((s,c)=>s+parseFloat(row[c.id]||0),0);
+    const parts=CH_META.filter(c=>row[c.id]>0).map(c=>`${c.icon} ${fmtN(row[c.id])}`).join(' · ');
+    const [y,m,d]=date.split('-');
+    return`<div class="hist-item">
+      <div>
+        <div class="hist-date">${parseInt(d)} ${MONTHS_TH[parseInt(m)-1]} ${parseInt(y)+543}</div>
+        <div class="hist-chs">${parts||'—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end">
+        <div class="hist-total">${fmtB(total)}</div>
+        <button class="hist-edit" onclick="editDay('${date}')">✏ แก้ไข</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editDay(date){switchTab('daily');$('in-date').value=date;loadDayData();}
+
+let toastTimer;
+function showToast(msg,isErr=false){
+  const t=$('toast');
+  t.textContent=msg; t.classList.toggle('err',isErr);
+  t.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function isFirebaseConfigured(){
+  return FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.includes('PASTE_YOUR');
+}
+
+async function init(){
+  // Load defaults
+  settings=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  try{const s=JSON.parse(localStorage.getItem('sd_settings')||'null');if(s&&s.month)settings=s;}catch(_){}
+  try{const sv=JSON.parse(localStorage.getItem('sd_sales')||'null');if(sv)salesData=sv;}catch(_){}
+
+  // Populate selects
+  $('in-month').innerHTML=MONTHS_TH.map(m=>`<option>${m}</option>`).join('');
+  $('in-date').value=today();
+
+  showView('dashboard');
+
+  if(!isFirebaseConfigured()){
+    $('setup-warn').hidden=false;
+    return;
+  }
+
+  try{
+    const app=firebase.initializeApp(FIREBASE_CONFIG);
+    fsDb=firebase.firestore(app);
+  }catch(e){
+    console.error('Firebase init error:',e);
+    showToast('⚠ Firebase เชื่อมต่อไม่ได้',true);
+    return;
+  }
+
+  // Settings listener
+  fsDb.doc('settings/current').onSnapshot(snap=>{
+    if(snap.exists) settings=snap.data();
+    else fsDb.doc('settings/current').set(DEFAULT_SETTINGS).catch(()=>{});
+    renderDash();
+  },err=>console.error('Settings error:',err));
+
+  // Sales listener — merge to preserve optimistic updates
+  fsDb.collection('sales').onSnapshot(snap=>{
+    const fresh={};
+    snap.docs.forEach(doc=>{fresh[doc.id]=doc.data();});
+    Object.assign(salesData,fresh);
+    Object.keys(salesData).forEach(k=>{if(!(k in fresh))delete salesData[k];});
+    try{localStorage.setItem('sd_sales',JSON.stringify(salesData));}catch(_){}
+    renderDash();
+    $('conn-dot').classList.remove('off');
+  },err=>console.error('Sales error:',err));
+}
+
+init();
+</script>
+</body>
+</html>
