@@ -37,6 +37,16 @@
   --muted:    #9CA3AF;
   --num:      'Barlow Condensed',system-ui;
   --body:     'Inter',system-ui;
+  /* ring card theming */
+  --ring-card-bg:     #F4511E;
+  --ring-card-shadow: 0 4px 24px rgba(244,81,30,.30);
+  --ring-text:        #fff;
+  --ring-sub:         rgba(255,255,255,.75);
+  --ring-target:      rgba(255,255,255,.85);
+  --ring-stroke1:     #FFD0B5;
+  --ring-stroke2:     #fff;
+  --sb-head-bg:       #FFF8F6;
+  --ch-row-hover:     #FFF8F6;
 }
 
 /* ── RESET ── */
@@ -68,7 +78,7 @@ select,input{font-family:var(--body)}
   font-family:var(--num);font-size:1.5rem;font-weight:900;
   letter-spacing:2px;text-transform:uppercase;
   color:var(--accent);flex-shrink:0;
-  text-shadow:0 0 24px rgba(244,81,30,.35);
+  text-shadow:0 0 24px var(--glow);
 }
 .topbar-center{
   display:flex;align-items:center;gap:8px;
@@ -90,6 +100,54 @@ select,input{font-family:var(--body)}
   transition:all .15s;white-space:nowrap;
 }
 .topbar-btn:hover{color:var(--accent);border-color:var(--border);background:var(--accent3)}
+
+/* store badge in topbar */
+.store-badge{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;border:2px solid var(--accent);
+  background:var(--accent3);color:var(--accent);
+  font-size:.78rem;font-weight:800;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.store-badge:hover{opacity:.8}
+
+/* ── STORE SELECTOR ── */
+.store-sel-bg{
+  min-height:100dvh;
+  background:linear-gradient(160deg,#1a1a1a 0%,#2d2d2d 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 20px;
+}
+.store-sel-logo{
+  font-family:var(--num);font-size:3rem;font-weight:900;letter-spacing:4px;
+  color:#fff;margin-bottom:8px;text-align:center;
+}
+.store-sel-sub{font-size:.85rem;color:rgba(255,255,255,.45);margin-bottom:48px;letter-spacing:.5px}
+.store-sel-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;max-width:560px}
+.store-card{
+  flex:1;min-width:200px;max-width:240px;
+  border-radius:20px;padding:32px 24px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;
+}
+.store-card:hover{transform:translateY(-4px)}
+.store-card-name{
+  font-family:var(--num);font-size:2.4rem;font-weight:900;letter-spacing:3px;
+}
+.store-card-desc{font-size:.78rem;opacity:.7;text-align:center;font-weight:600;letter-spacing:.3px}
+.store-card-wpc{
+  background:linear-gradient(135deg,#FF6B35,#F4511E);
+  box-shadow:0 8px 32px rgba(244,81,30,.40);
+  color:#fff;
+}
+.store-card-wpc:hover{box-shadow:0 12px 40px rgba(244,81,30,.55)}
+.store-card-luck{
+  background:linear-gradient(135deg,#d6d0c7,#e5e0d4);
+  box-shadow:0 8px 32px rgba(0,0,0,.15);
+  color:#2C1810;
+}
+.store-card-luck:hover{box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.store-card-icon{font-size:2.5rem;line-height:1}
 
 /* ── DASHBOARD LAYOUT ── */
 .dash{padding:16px;max-width:1280px;margin:0 auto;
@@ -115,9 +173,10 @@ select,input{font-family:var(--body)}
 
 /* ── RING CARD ── */
 .ring-card{
-  background:#F4511E;border:none;border-radius:16px;
+  background:var(--ring-card-bg);border:none;border-radius:16px;
   padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:16px;
-  box-shadow:0 4px 24px rgba(244,81,30,.30);
+  box-shadow:var(--ring-card-shadow);
+  transition:background .4s,box-shadow .4s;
 }
 @media(max-width:820px){
   .ring-card{flex-direction:row;padding:16px 20px;gap:20px}
@@ -132,13 +191,13 @@ select,input{font-family:var(--body)}
   filter:drop-shadow(0 0 12px rgba(255,255,255,.6));
 }
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-pct{font-family:var(--num);font-size:2.8rem;font-weight:900;line-height:1;color:#fff;transition:all .4s}
+.ring-pct{font-family:var(--num);font-size:2.8rem;font-weight:900;line-height:1;color:var(--ring-text);transition:all .4s}
 @media(max-width:820px){.ring-pct{font-size:2.2rem}}
-.ring-lbl{font-size:.65rem;color:rgba(255,255,255,.7);letter-spacing:.8px;text-transform:uppercase;font-weight:600;margin-top:1px}
-.ring-total{font-family:var(--num);font-size:.95rem;font-weight:600;color:rgba(255,255,255,.85)}
+.ring-lbl{font-size:.65rem;color:var(--ring-sub);letter-spacing:.8px;text-transform:uppercase;font-weight:600;margin-top:1px}
+.ring-total{font-family:var(--num);font-size:.95rem;font-weight:600;color:var(--ring-target)}
 .ring-info{flex:1;min-width:0}
-.ring-info .big-label{font-size:.7rem;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:4px}
-.ring-info .big-val{font-family:var(--num);font-size:1.8rem;font-weight:700;color:#fff;line-height:1}
+.ring-info .big-label{font-size:.7rem;color:var(--ring-sub);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:4px}
+.ring-info .big-val{font-family:var(--num);font-size:1.8rem;font-weight:700;color:var(--ring-text);line-height:1}
 
 /* ── STATS GRID ── */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -149,8 +208,13 @@ select,input{font-family:var(--body)}
 .stat-val{font-family:var(--num);font-size:1.5rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .stat-lbl{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin-top:4px}
 .ca{color:var(--accent)}.cs{color:#16A34A}.cw{color:var(--warn)}.ci{color:var(--info)}
-/* fix s-days / s-avg inline color from old dark theme */
 .stat{box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-remain{
+  background:var(--ring-card-bg);border-color:transparent;
+  transition:background .4s;
+}
+.stat-remain .stat-val{color:var(--ring-text)}
+.stat-remain .stat-lbl{color:var(--ring-sub)}
 
 /* ── RACE TRACK ── */
 .race-track{
@@ -169,7 +233,7 @@ select,input{font-family:var(--body)}
 }
 .race-fill{
   position:absolute;top:0;left:0;bottom:0;border-radius:20px;
-  background:linear-gradient(90deg,#D43D0E,#F4511E);
+  background:linear-gradient(90deg,var(--accent2),var(--accent));
   transition:width 1.4s cubic-bezier(.4,0,.2,1);width:0%;
   max-width:calc(100% - 44px);
 }
@@ -215,7 +279,7 @@ select,input{font-family:var(--body)}
   padding:12px 20px;font-size:.67rem;font-weight:700;
   text-transform:uppercase;letter-spacing:1px;color:var(--muted);
   border-bottom:1px solid rgba(0,0,0,.06);
-  background:#FFF8F6;
+  background:var(--sb-head-bg);
 }
 .ch-row{
   display:grid;grid-template-columns:minmax(110px,210px) 1fr 60px;
@@ -225,7 +289,7 @@ select,input{font-family:var(--body)}
   transition:background .12s;
 }
 .ch-row:last-child{border-bottom:none}
-.ch-row:hover{background:#FFF8F6}
+.ch-row:hover{background:var(--ch-row-hover)}
 @media(max-width:400px){
   .sb-head,.ch-row{grid-template-columns:minmax(90px,150px) 1fr 48px;padding:12px 14px}
 }
@@ -233,27 +297,18 @@ select,input{font-family:var(--body)}
 .ch-icon{
   flex-shrink:0;width:34px;height:34px;border-radius:10px;
   display:flex;align-items:center;justify-content:center;
-  background:#F4511E;
-  border:none;
+  background:#F4511E;border:none;
 }
 .ch-icon svg{display:block}
 .ch-name{font-size:.85rem;font-weight:600;line-height:1.2;color:var(--text)}
-.ch-today-tag{font-size:.65rem;color:#F4511E;font-weight:600;margin-top:1px}
+.ch-today-tag{font-size:.65rem;color:var(--accent);font-weight:600;margin-top:1px}
 .bar-wrap{padding-right:12px;min-width:0}
 .bar-bg{height:6px;background:#EBEBEB;border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(.4,0,.2,1);min-width:2px}
 .bar-label{font-size:.65rem;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ch-pct{font-family:var(--num);font-size:1.15rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
 .tag-first{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:20px;
-  background:#FEF0EC;color:#F4511E;white-space:nowrap;border:1px solid rgba(244,81,30,.18)}
-
-/* ── MOTIVE BANNER ── */
-.motive{
-  background:linear-gradient(135deg,rgba(182,255,86,.08),rgba(182,255,86,.03));
-  border:1px solid var(--border);border-radius:16px;
-  padding:16px 24px;text-align:center;font-size:.95rem;font-weight:600;color:var(--sub);
-}
-.motive span{color:var(--text)}
+  background:var(--accent3);color:var(--accent);white-space:nowrap;border:1px solid var(--glow)}
 
 /* ── OVERLAY / MODAL ── */
 .overlay{
@@ -313,7 +368,7 @@ select,input{font-family:var(--body)}
   background:var(--accent);color:#fff;width:100%;margin-top:20px;
   font-weight:800;letter-spacing:.5px;
 }
-.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(244,81,30,.30)}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 16px var(--glow)}
 .btn-ghost{background:var(--card);color:var(--sub);border:1px solid var(--border2)}
 .btn-ghost:hover{color:var(--text)}
 .ctr-row{
@@ -325,7 +380,7 @@ select,input{font-family:var(--body)}
 .ctr-check input{accent-color:var(--accent)}
 .dch-row{
   display:grid;grid-template-columns:1fr 1fr;gap:12px;
-  align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);
+  align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.05);
 }
 .dch-lbl{font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--text)}
 .section-hd{font-size:.67rem;font-weight:700;text-transform:uppercase;
@@ -348,31 +403,42 @@ select,input{font-family:var(--body)}
   background:var(--accent);color:#fff;
   padding:11px 22px;border-radius:50px;font-weight:800;font-size:.85rem;
   z-index:400;opacity:0;transition:.3s cubic-bezier(.4,0,.2,1);
-  white-space:nowrap;box-shadow:0 4px 20px rgba(244,81,30,.35);
+  white-space:nowrap;box-shadow:0 4px 20px var(--glow);
   font-family:var(--body);
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--danger);color:#fff;box-shadow:0 4px 20px rgba(255,87,87,.3)}
-
-/* ── SETUP WARNING ── */
-.setup-warn{
-  margin:12px 16px 0;padding:12px 16px;
-  background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);
-  border-radius:10px;font-size:.8rem;color:var(--warn);line-height:1.6;
-}
-.setup-warn code{background:rgba(255,181,71,.15);border-radius:4px;
-  padding:1px 6px;font-family:monospace;font-size:.75rem}
 </style>
 </head>
 <body>
 
+<!-- ═══════ STORE SELECTOR VIEW ═══════ -->
+<div id="view-store" class="view">
+  <div class="store-sel-bg">
+    <div class="store-sel-logo">YOD UP!</div>
+    <div class="store-sel-sub">เลือกร้านค้า</div>
+    <div class="store-sel-cards">
+      <div class="store-card store-card-wpc" onclick="selectStore('wpc')">
+        <div class="store-card-icon">🛒</div>
+        <div class="store-card-name">WPC</div>
+        <div class="store-card-desc">Shopee · TikTok · Lazada<br>Thaimart · Website</div>
+      </div>
+      <div class="store-card store-card-luck" onclick="selectStore('luck')">
+        <div class="store-card-icon">🍀</div>
+        <div class="store-card-name">LUCK</div>
+        <div class="store-card-desc">Shopee · Lazada · Website<br>Central · Line · TikTok</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════ DASHBOARD VIEW ═══════ -->
 <div id="view-dashboard" class="view" hidden>
-  <div id="setup-warn" class="setup-warn" hidden>
-    ⚙️ ยังไม่ได้ตั้งค่า Firebase — ข้อมูลบันทึกเฉพาะ Browser นี้ แก้ไข <code>FIREBASE_CONFIG</code> เพื่อ sync ทั้งทีม
-  </div>
   <div class="topbar">
-    <div class="logo">YOD UP!</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="logo">YOD UP!</div>
+      <button class="store-badge" id="store-badge-btn" onclick="backToStoreSelect()">WPC ▾</button>
+    </div>
     <div class="topbar-center">
       <div id="conn-dot" class="live-dot off"></div>
       <span id="db-month-label">—</span>
@@ -384,14 +450,14 @@ select,input{font-family:var(--body)}
     <!-- LEFT -->
     <div class="dash-left">
 
-      <!-- Ring + Month stats (mobile: row layout) -->
+      <!-- Ring + Month stats -->
       <div class="ring-card">
         <div class="ring-wrap">
           <svg class="ring-svg" viewBox="0 0 160 160">
             <defs>
               <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#FFD0B5"/>
-                <stop offset="100%" stop-color="#fff"/>
+                <stop id="rg-stop1" offset="0%" stop-color="#FFD0B5"/>
+                <stop id="rg-stop2" offset="100%" stop-color="#fff"/>
               </linearGradient>
             </defs>
             <circle class="ring-bg" cx="80" cy="80" r="68"/>
@@ -404,8 +470,8 @@ select,input{font-family:var(--body)}
         </div>
         <div class="ring-info">
           <div class="big-label">ยอดสะสมเดือนนี้</div>
-          <div id="ring-amount" class="big-val num" style="color:#fff">฿0</div>
-          <div style="margin-top:10px;font-size:.75rem;color:rgba(255,255,255,.75)">เป้าหมาย <span id="ring-target" style="color:#fff;font-weight:600">฿0</span></div>
+          <div id="ring-amount" class="big-val num">฿0</div>
+          <div style="margin-top:10px;font-size:.75rem;color:var(--ring-sub)">เป้าหมาย <span id="ring-target" style="font-weight:600;color:var(--ring-target)">฿0</span></div>
         </div>
       </div>
 
@@ -415,9 +481,9 @@ select,input{font-family:var(--body)}
           <div id="s-today" class="stat-val ca">฿0</div>
           <div class="stat-lbl">ยอดวันนี้</div>
         </div>
-        <div class="stat" style="background:#F4511E;border-color:transparent">
-          <div id="s-remain" class="stat-val" style="color:#fff">฿0</div>
-          <div class="stat-lbl" style="color:rgba(255,255,255,.80)">ต้องทำอีก</div>
+        <div class="stat stat-remain">
+          <div id="s-remain" class="stat-val">฿0</div>
+          <div class="stat-lbl">ต้องทำอีก</div>
         </div>
         <div class="stat" style="background:#fff">
           <div id="s-days" class="stat-val ca">0</div>
@@ -429,7 +495,6 @@ select,input{font-family:var(--body)}
         </div>
       </div>
 
-      <!-- Avg row hidden on mobile (shown in stats) — keep motivation -->
       <div class="avg-bar">
         <span class="label">เฉลี่ยต่อวันที่ต้องทำ</span>
         <span id="s-avg2" class="val">฿0</span>
@@ -438,8 +503,6 @@ select,input{font-family:var(--body)}
 
     <!-- RIGHT: Race track + Scoreboard -->
     <div class="dash-right">
-
-      <!-- Race track progress (top of right panel) -->
       <div class="race-track">
         <div class="race-labels">
           <span class="rl-start">ยอดสะสม</span>
@@ -511,7 +574,7 @@ select,input{font-family:var(--body)}
 <div id="view-admin" class="view" hidden>
   <div class="topbar">
     <button class="topbar-btn" onclick="showView('dashboard')">← กลับ</button>
-    <div class="logo" style="font-size:1.1rem">Admin</div>
+    <div class="logo" style="font-size:1.1rem">Admin — <span id="admin-store-name">WPC</span></div>
     <div style="width:80px"></div>
   </div>
   <div class="admin-wrap">
@@ -562,8 +625,6 @@ select,input{font-family:var(--body)}
 <script>
 /* ════════════════════════════════════════
    🔥 FIREBASE CONFIG
-   ════════════════════════════════════════
-   วางค่าจาก Firebase Console > Project Settings > Web App ตรงนี้
    ════════════════════════════════════════ */
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyDmHILBVVFC1_tOrfXNC4XEEkRHbJ5J298",
@@ -583,19 +644,59 @@ const ICON_SHOPEE=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" x
 const ICON_TIKTOK=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34l.01-8.56a8.18 8.18 0 004.78 1.53V4.83a4.85 4.85 0 01-1.02-.14z"/></svg>`;
 const ICON_LAZADA=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.21 4H3V2H1v2h2l3.6 7.59L5.25 14c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h14v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.46 4H5.21z"/></svg>`;
 const ICON_GLOBE=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+const ICON_CENTRAL=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M4 21V8l8-5 8 5v13h-5v-6h-6v6H4z"/></svg>`;
+const ICON_LINE=`<svg width="18" height="18" viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M42,20.135C42,11.245,33.075,4,22,4S2,11.245,2,20.135c0,8.005,7.1,14.715,16.685,15.98c0.649,0.14,1.534,0.428,1.757,0.984c0.2,0.505,0.131,1.295,0.064,1.805c0,0-0.234,1.407-0.284,1.707c-0.087,0.505-0.401,1.974,1.729,1.076s11.491-6.767,15.681-11.583l0,0C40.836,26.89,42,23.655,42,20.135z M16.167,25H11.85c-0.644,0-1.167-0.522-1.167-1.167V16.5c0-0.644,0.522-1.167,1.167-1.167s1.167,0.522,1.167,1.167v6.167H16.167c0.644,0,1.167,0.522,1.167,1.167S16.811,25,16.167,25z M20.333,23.833c0,0.644-0.522,1.167-1.167,1.167s-1.167-0.522-1.167-1.167V16.5c0-0.644,0.522-1.167,1.167-1.167s1.167,0.522,1.167,1.167V23.833z M28.5,23.833c0,0.52-0.344,0.977-0.843,1.12c-0.108,0.031-0.217,0.047-0.324,0.047c-0.4,0-0.777-0.193-1.013-0.523L23.133,20.2v3.633c0,0.644-0.522,1.167-1.167,1.167s-1.167-0.522-1.167-1.167V16.5c0-0.52,0.344-0.977,0.843-1.12c0.107-0.031,0.217-0.047,0.324-0.047c0.399,0,0.777,0.193,1.013,0.523l3.187,4.277V16.5c0-0.644,0.522-1.167,1.167-1.167s1.167,0.522,1.167,1.167V23.833z M35.5,19.083c0.644,0,1.167,0.522,1.167,1.167s-0.522,1.167-1.167,1.167H33.25v1.25H35.5c0.644,0,1.167,0.522,1.167,1.167S36.144,25,35.5,25h-3.417c-0.644,0-1.167-0.522-1.167-1.167V16.5c0-0.644,0.522-1.167,1.167-1.167H35.5c0.644,0,1.167,0.522,1.167,1.167s-0.522,1.167-1.167,1.167H33.25v1.25H35.5V19.083z"/></svg>`;
 
-const CH_META = [
-  {id:'shopee_rtd', name:'SHOPEE RTD',             icon:ICON_SHOPEE,  color:'#F4511E'},
-  {id:'shopee_wpc', name:'SHOPEE WPC',             icon:ICON_SHOPEE,  color:'#FF7C4D'},
-  {id:'shopee_bat', name:'SHOPEE WPC แบตเตอรี่',  icon:ICON_SHOPEE,  color:'#FF9D7A'},
-  {id:'tiktok_rtd', name:'TikTok RTD',             icon:ICON_TIKTOK,  color:'#D43D0E'},
-  {id:'tiktok_new', name:'TikTok Wpc',icon:ICON_TIKTOK,  color:'#F4511E'},
-  {id:'lazada',     name:'Lazada',                 icon:ICON_LAZADA,  color:'#FF6B35'},
-  {id:'thaimart',   name:'Thaimart',               icon:ICON_GLOBE,   color:'#16A34A'},
-  {id:'website',    name:'Website',                icon:ICON_GLOBE,   color:'#3B82F6'},
+/* ════════════════════════════════════════
+   STORE CONFIG
+   ════════════════════════════════════════ */
+const STORES = {
+  wpc: {
+    id:'wpc', name:'WPC',
+    accent:'#F4511E', accent2:'#D43D0E',
+    accent3:'rgba(244,81,30,.10)', glow:'rgba(244,81,30,.18)', card2:'#FFF5F2',
+    ringCardBg:'#F4511E', ringCardShadow:'0 4px 24px rgba(244,81,30,.30)',
+    ringText:'#fff', ringSub:'rgba(255,255,255,.75)', ringTarget:'rgba(255,255,255,.85)',
+    rgStop1:'#FFD0B5', rgStop2:'#fff',
+    sbHeadBg:'#FFF8F6', chRowHover:'#FFF8F6',
+    settingsDoc:'settings/current', salesColl:'sales',
+    lsSettings:'sd_settings', lsSales:'sd_sales',
+  },
+  luck: {
+    id:'luck', name:'LUCK',
+    accent:'#7B5C47', accent2:'#5E4334',
+    accent3:'rgba(123,92,71,.10)', glow:'rgba(123,92,71,.18)', card2:'#F5F0E8',
+    ringCardBg:'#e5e0d4', ringCardShadow:'0 4px 24px rgba(0,0,0,.10)',
+    ringText:'#2C1810', ringSub:'rgba(44,24,16,.60)', ringTarget:'rgba(44,24,16,.75)',
+    rgStop1:'#9B7D6A', rgStop2:'#7B5C47',
+    sbHeadBg:'#F5F0E8', chRowHover:'#F5F0E8',
+    settingsDoc:'luck_settings/current', salesColl:'luck_sales',
+    lsSettings:'sd_luck_settings', lsSales:'sd_luck_sales',
+  },
+};
+
+/* Channel metadata per store */
+const CH_META_WPC = [
+  {id:'shopee_rtd', name:'SHOPEE RTD',            icon:ICON_SHOPEE,   color:'#F4511E'},
+  {id:'shopee_wpc', name:'SHOPEE WPC',            icon:ICON_SHOPEE,   color:'#FF7C4D'},
+  {id:'shopee_bat', name:'SHOPEE WPC แบตเตอรี่', icon:ICON_SHOPEE,   color:'#FF9D7A'},
+  {id:'tiktok_rtd', name:'TikTok RTD',            icon:ICON_TIKTOK,   color:'#D43D0E'},
+  {id:'tiktok_new', name:'TikTok Wpc',             icon:ICON_TIKTOK,   color:'#F4511E'},
+  {id:'lazada',     name:'Lazada',                icon:ICON_LAZADA,   color:'#FF6B35'},
+  {id:'thaimart',   name:'Thaimart',              icon:ICON_GLOBE,    color:'#16A34A'},
+  {id:'website',    name:'Website',               icon:ICON_GLOBE,    color:'#3B82F6'},
 ];
 
-const DEFAULT_SETTINGS = {
+const CH_META_LUCK = [
+  {id:'shopee',  name:'Shopee',  icon:ICON_SHOPEE,   color:'#F4511E'},
+  {id:'lazada',  name:'Lazada',  icon:ICON_LAZADA,   color:'#7C3AED'},
+  {id:'website', name:'Website', icon:ICON_GLOBE,    color:'#2563EB'},
+  {id:'central', name:'Central', icon:ICON_CENTRAL,  color:'#B91C1C'},
+  {id:'line',    name:'Line',    icon:ICON_LINE,     color:'#059669'},
+  {id:'tiktok',  name:'TikTok',  icon:ICON_TIKTOK,   color:'#374151'},
+];
+
+const DEFAULT_SETTINGS_WPC = {
   month:'กันยายน', year:'2569', monthDays:30, totalTarget:265000, pin:'1234',
   monthKey:'2026-09',
   channels:[
@@ -610,13 +711,115 @@ const DEFAULT_SETTINGS = {
   ],
 };
 
+const DEFAULT_SETTINGS_LUCK = {
+  month:'กันยายน', year:'2569', monthDays:30, totalTarget:0, pin:'1234',
+  monthKey:'2026-09',
+  channels:[
+    {id:'shopee',  target:0, hasTarget:false},
+    {id:'lazada',  target:0, hasTarget:false},
+    {id:'website', target:0, hasTarget:false},
+    {id:'central', target:0, hasTarget:false},
+    {id:'line',    target:0, hasTarget:false},
+    {id:'tiktok',  target:0, hasTarget:false},
+  ],
+};
+
+/* ════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════ */
 let fsDb=null, settings=null, salesData={}, curView='', curTab='daily';
+let curStore=null; // 'wpc' or 'luck'
+let unsubSettings=null, unsubSales=null;
 
 const $    = id=>document.getElementById(id);
 const fmtN = n =>Math.round(n||0).toLocaleString('th-TH');
 const fmtB = n =>'฿'+fmtN(n);
 const today= ()=>new Date().toISOString().slice(0,10);
 
+function getChMeta(){ return curStore==='luck' ? CH_META_LUCK : CH_META_WPC; }
+function getDefaultSettings(){ return curStore==='luck' ? JSON.parse(JSON.stringify(DEFAULT_SETTINGS_LUCK)) : JSON.parse(JSON.stringify(DEFAULT_SETTINGS_WPC)); }
+function getStoreConf(){ return STORES[curStore]||STORES.wpc; }
+
+/* ── Theme ── */
+function setTheme(storeId){
+  const s=STORES[storeId];
+  const r=document.documentElement;
+  r.style.setProperty('--accent',s.accent);
+  r.style.setProperty('--accent2',s.accent2);
+  r.style.setProperty('--accent3',s.accent3);
+  r.style.setProperty('--glow',s.glow);
+  r.style.setProperty('--card2',s.card2);
+  r.style.setProperty('--ring-card-bg',s.ringCardBg);
+  r.style.setProperty('--ring-card-shadow',s.ringCardShadow);
+  r.style.setProperty('--ring-text',s.ringText);
+  r.style.setProperty('--ring-sub',s.ringSub);
+  r.style.setProperty('--ring-target',s.ringTarget);
+  r.style.setProperty('--sb-head-bg',s.sbHeadBg);
+  r.style.setProperty('--ch-row-hover',s.chRowHover);
+  // gradient stops
+  const s1=document.getElementById('rg-stop1'), s2=document.getElementById('rg-stop2');
+  if(s1) s1.setAttribute('stop-color',s.rgStop1);
+  if(s2) s2.setAttribute('stop-color',s.rgStop2);
+  // store badge
+  const badge=$('store-badge-btn');
+  if(badge) badge.textContent=s.name+' ▾';
+  // admin label
+  const aName=$('admin-store-name');
+  if(aName) aName.textContent=s.name;
+}
+
+/* ── Store selection ── */
+function selectStore(storeId){
+  curStore=storeId;
+  const sc=getStoreConf();
+
+  // Unsubscribe previous listeners
+  if(unsubSettings){try{unsubSettings();}catch(_){}unsubSettings=null;}
+  if(unsubSales){try{unsubSales();}catch(_){}unsubSales=null;}
+
+  // Reset state
+  salesData={};
+  settings=getDefaultSettings();
+
+  // Load from localStorage
+  try{const sv=JSON.parse(localStorage.getItem(sc.lsSettings)||'null');if(sv&&sv.month)settings=sv;}catch(_){}
+  try{const sv=JSON.parse(localStorage.getItem(sc.lsSales)||'null');if(sv)salesData=sv;}catch(_){}
+
+  setTheme(storeId);
+  showView('dashboard');
+
+  if(!fsDb) return;
+
+  // Settings listener
+  unsubSettings=fsDb.doc(sc.settingsDoc).onSnapshot(snap=>{
+    if(snap.exists) settings=snap.data();
+    else fsDb.doc(sc.settingsDoc).set(getDefaultSettings()).catch(()=>{});
+    renderDash();
+    setTheme(curStore);
+  },err=>console.error('Settings error:',err));
+
+  // Sales listener
+  unsubSales=fsDb.collection(sc.salesColl).onSnapshot(snap=>{
+    const fresh={};
+    snap.docs.forEach(doc=>{fresh[doc.id]=doc.data();});
+    Object.assign(salesData,fresh);
+    Object.keys(salesData).forEach(k=>{if(!(k in fresh))delete salesData[k];});
+    try{localStorage.setItem(sc.lsSales,JSON.stringify(salesData));}catch(_){}
+    renderDash();
+    $('conn-dot').classList.remove('off');
+  },err=>console.error('Sales error:',err));
+}
+
+function backToStoreSelect(){
+  if(unsubSettings){try{unsubSettings();}catch(_){}unsubSettings=null;}
+  if(unsubSales){try{unsubSales();}catch(_){}unsubSales=null;}
+  curStore=null;
+  showView('store');
+}
+
+/* ════════════════════════════════════════
+   CORE LOGIC
+   ════════════════════════════════════════ */
 function getMonthKey(s){
   if(s&&s.monthKey) return s.monthKey;
   const y=parseInt(s.year||2026)-543, mi=MONTHS_TH.indexOf(s.month||'กันยายน');
@@ -631,38 +834,29 @@ function daysLeft(s){
 }
 
 function calcTotals(){
+  const CH=getChMeta();
   const mk=settings?getMonthKey(settings):null, tod=today();
   const grand={}, todayTot={};
-  CH_META.forEach(c=>{grand[c.id]=0;todayTot[c.id]=0;});
+  CH.forEach(c=>{grand[c.id]=0;todayTot[c.id]=0;});
   let gSum=0, tSum=0;
   Object.entries(salesData).forEach(([d,row])=>{
     if(!mk||!d.startsWith(mk)) return;
-    CH_META.forEach(c=>{const v=parseFloat(row[c.id]||0);grand[c.id]+=v;gSum+=v;});
-    if(d===tod) CH_META.forEach(c=>{todayTot[c.id]=parseFloat(row[c.id]||0);tSum+=parseFloat(row[c.id]||0);});
+    CH.forEach(c=>{const v=parseFloat(row[c.id]||0);grand[c.id]+=v;gSum+=v;});
+    if(d===tod) CH.forEach(c=>{todayTot[c.id]=parseFloat(row[c.id]||0);tSum+=parseFloat(row[c.id]||0);});
   });
   return {grand,grandSum:gSum,todayTot,todaySum:tSum};
 }
 
-function motivation(pct){
-  if(pct>=100) return '🏆 บรรลุเป้าหมาย! ยอดเยี่ยมมาก ทีม TCA! 🎉';
-  if(pct>=90)  return '⚡ เกือบถึงแล้ว! สู้ต่อไป อีกนิดเดียว!';
-  if(pct>=70)  return '🔥 ดีมาก! ยังมีเวลา ไปต่อกันได้เลย!';
-  if(pct>=50)  return '🎯 ครึ่งทางแล้ว! เดินหน้าต่อ อย่าหยุด!';
-  if(pct>=25)  return '💪 เริ่มต้นได้ดี! ทุกออเดอร์มีความหมาย!';
-  return '🚀 มาลุยกันเลย! เป้าหมายอยู่ตรงหน้า!';
-}
-
 function renderDash(){
   if(!settings) return;
+  const CH=getChMeta();
   const {grand,grandSum,todaySum}=calcTotals();
   const tgt=settings.totalTarget||0, remain=Math.max(0,tgt-grandSum);
   const pct=tgt>0?Math.min(100,(grandSum/tgt)*100):0;
   const dl=daysLeft(settings), avg=dl>0?remain/dl:remain;
 
-  // Topbar
   $('db-month-label').textContent=`${settings.month||''} ${settings.year||''}`;
 
-  // Ring (r=68, circ=2π×68≈427)
   const circ=2*Math.PI*68;
   const trail=$('ring-trail');
   trail.style.strokeDasharray=circ;
@@ -671,29 +865,25 @@ function renderDash(){
   $('ring-amount').textContent=fmtB(grandSum);
   $('ring-target').textContent=fmtB(tgt);
 
-  // Race track
   const racePct=Math.min(pct,100);
   $('race-pct').textContent=Math.round(racePct)+'%';
   $('race-fill').style.width=racePct+'%';
   $('race-runner').style.left='calc('+racePct+'% - 18px)';
-  // keep rocket always
   $('race-cur').textContent=fmtB(grandSum);
   $('race-tgt').textContent=fmtB(tgt);
 
-  // Stats
   $('s-today').textContent  =fmtB(todaySum);
   $('s-remain').textContent =fmtB(remain);
   $('s-days').textContent   =dl;
   $('s-avg').textContent    =fmtB(avg);
   $('s-avg2').textContent   =fmtB(avg);
 
-  // Channels
-  const chs=settings.channels||DEFAULT_SETTINGS.channels;
+  const chs=settings.channels||(curStore==='luck'?DEFAULT_SETTINGS_LUCK.channels:DEFAULT_SETTINGS_WPC.channels);
   const mk=getMonthKey(settings);
   const todayRow=salesData[today()];
   const todayInM=todayRow&&(todayRow.month===mk||today().startsWith(mk));
 
-  $('ch-rows').innerHTML=CH_META.map(meta=>{
+  $('ch-rows').innerHTML=CH.map(meta=>{
     const ch=chs.find(c=>c.id===meta.id)||{target:0,hasTarget:false};
     const amt=grand[meta.id]||0, tgt2=ch.target||0;
     const pct2=ch.hasTarget&&tgt2>0?Math.min(100,(amt/tgt2)*100):null;
@@ -705,13 +895,14 @@ function renderDash(){
       :`<div class="bar-bg"><div class="bar-fill" style="width:100%;background:${meta.color};opacity:.2"></div></div>
         <div class="bar-label">${fmtB(amt)} สะสม</div>`;
 
+    const accentColor=getStoreConf().accent;
     const pctCell=ch.hasTarget
-      ?`<span style="color:${pct2>=100?'#16A34A':pct2>=70?'#D97706':'#F4511E'}">${Math.round(pct2||0)}%</span>`
+      ?`<span style="color:${pct2>=100?'#16A34A':pct2>=70?'#D97706':accentColor}">${Math.round(pct2||0)}%</span>`
       :`<span class="tag-first">ออเดอร์แรก</span>`;
 
     return`<div class="ch-row" style="border-left-color:${meta.color}">
       <div class="ch-left">
-        <span class="ch-icon">${meta.icon}</span>
+        <span class="ch-icon" style="background:${meta.color}">${meta.icon}</span>
         <div>
           <div class="ch-name">${meta.name}</div>
           ${todayV>0?`<div class="ch-today-tag">+${fmtB(todayV)} วันนี้</div>`:''}
@@ -731,6 +922,7 @@ function showView(name){
   if(name==='dashboard') renderDash();
 }
 
+/* ── PIN ── */
 function openPin(){
   ['p0','p1','p2','p3'].forEach(id=>{$(id).value='';});
   $('pin-err').textContent='';
@@ -764,6 +956,7 @@ function checkPin(){
   }
 }
 
+/* ── Admin tabs ── */
 function switchTab(tab){
   ['daily','settings','history'].forEach(t=>{
     $('tab-'+t).classList.toggle('on',t===tab);
@@ -775,9 +968,10 @@ function switchTab(tab){
 
 function renderAdmin(){
   if(!settings) return;
+  const CH=getChMeta();
   const savedDate=$('in-date').value||today();
 
-  $('daily-ch-inputs').innerHTML=CH_META.map(m=>`
+  $('daily-ch-inputs').innerHTML=CH.map(m=>`
     <div class="dch-row">
       <div class="dch-lbl">${m.icon} ${m.name}</div>
       <input type="number" class="finput" id="d-${m.id}" placeholder="0" min="0" inputmode="decimal">
@@ -792,8 +986,8 @@ function renderAdmin(){
   $('in-target').value=settings.totalTarget;
   $('in-pin').value='';
 
-  const chs=settings.channels||DEFAULT_SETTINGS.channels;
-  $('ch-targets-inputs').innerHTML=CH_META.map(meta=>{
+  const chs=settings.channels||(curStore==='luck'?DEFAULT_SETTINGS_LUCK.channels:DEFAULT_SETTINGS_WPC.channels);
+  $('ch-targets-inputs').innerHTML=CH.map(meta=>{
     const ch=chs.find(c=>c.id===meta.id)||{target:0,hasTarget:false};
     return`<div class="ctr-row">
       <div class="ctr-name">${meta.icon} ${meta.name}</div>
@@ -809,8 +1003,9 @@ function renderAdmin(){
 function toggleCh(id){$('ct-'+id).disabled=!$('cth-'+id).checked;}
 
 function loadDayData(){
+  const CH=getChMeta();
   const date=$('in-date').value, mk=settings?getMonthKey(settings):null, row=salesData[date];
-  CH_META.forEach(ch=>{
+  CH.forEach(ch=>{
     const inp=$('d-'+ch.id);
     if(inp) inp.value=(row&&(!mk||row.month===mk||date.startsWith(mk)))?(row[ch.id]||''):'';
   });
@@ -819,18 +1014,19 @@ function loadDayData(){
 async function saveDailySales(){
   const date=$('in-date').value;
   if(!date){showToast('⚠ กรุณาเลือกวันที่',true);return;}
+  const CH=getChMeta();
+  const sc=getStoreConf();
   const mk=settings?getMonthKey(settings):'2026-09';
   const rec={month:mk};
-  CH_META.forEach(ch=>{rec[ch.id]=parseFloat($('d-'+ch.id).value||'0');});
+  CH.forEach(ch=>{rec[ch.id]=parseFloat($('d-'+ch.id).value||'0');});
 
-  // Optimistic update
   salesData[date]=rec;
-  try{localStorage.setItem('sd_sales',JSON.stringify(salesData));}catch(_){}
+  try{localStorage.setItem(sc.lsSales,JSON.stringify(salesData));}catch(_){}
   renderDash();
 
   if(fsDb){
     try{
-      await fsDb.doc('sales/'+date).set(rec);
+      await fsDb.doc(sc.salesColl+'/'+date).set(rec);
       showToast('✅ บันทึกและ sync แล้ว!');
     }catch(e){showToast('⚠ บันทึกใน Browser แล้ว แต่ sync ไม่สำเร็จ',true);console.error(e);}
   } else {
@@ -844,18 +1040,20 @@ async function saveSettings(){
   const monthKey=`${ceYear}-${String(mIdx+1).padStart(2,'0')}`;
   const newPin=$('in-pin').value;
   const pin=newPin.length===4?newPin:(settings?settings.pin:'1234');
-  const channels=CH_META.map(m=>({
+  const CH=getChMeta();
+  const sc=getStoreConf();
+  const channels=CH.map(m=>({
     id:m.id, target:parseFloat($('ct-'+m.id).value||'0'), hasTarget:$('cth-'+m.id).checked
   }));
   const ns={month,year,monthKey,monthDays:parseInt($('in-days').value||'30'),
     totalTarget:parseFloat($('in-target').value||'0'),pin,channels};
 
   settings=ns;
-  try{localStorage.setItem('sd_settings',JSON.stringify(ns));}catch(_){}
+  try{localStorage.setItem(sc.lsSettings,JSON.stringify(ns));}catch(_){}
   renderDash();
 
   if(fsDb){
-    try{await fsDb.doc('settings/current').set(ns);showToast('✅ บันทึกและ sync แล้ว!');}
+    try{await fsDb.doc(sc.settingsDoc).set(ns);showToast('✅ บันทึกและ sync แล้ว!');}
     catch(e){showToast('⚠ บันทึกใน Browser แล้ว แต่ sync ไม่สำเร็จ',true);console.error(e);}
   } else {
     showToast('✅ บันทึกการตั้งค่าแล้ว');
@@ -863,6 +1061,7 @@ async function saveSettings(){
 }
 
 function renderHistory(){
+  const CH=getChMeta();
   const mk=settings?getMonthKey(settings):null;
   const entries=Object.entries(salesData)
     .filter(([d])=>!mk||d.startsWith(mk))
@@ -872,8 +1071,8 @@ function renderHistory(){
     return;
   }
   $('history-list').innerHTML=entries.map(([date,row])=>{
-    const total=CH_META.reduce((s,c)=>s+parseFloat(row[c.id]||0),0);
-    const parts=CH_META.filter(c=>row[c.id]>0).map(c=>`${c.icon} ${fmtN(row[c.id])}`).join(' · ');
+    const total=CH.reduce((s,c)=>s+parseFloat(row[c.id]||0),0);
+    const parts=CH.filter(c=>row[c.id]>0).map(c=>`${c.icon} ${fmtN(row[c.id])}`).join(' · ');
     const [y,m,d]=date.split('-');
     return`<div class="hist-item">
       <div>
@@ -903,48 +1102,22 @@ function isFirebaseConfigured(){
 }
 
 async function init(){
-  // Load defaults
-  settings=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-  try{const s=JSON.parse(localStorage.getItem('sd_settings')||'null');if(s&&s.month)settings=s;}catch(_){}
-  try{const sv=JSON.parse(localStorage.getItem('sd_sales')||'null');if(sv)salesData=sv;}catch(_){}
-
   // Populate selects
   $('in-month').innerHTML=MONTHS_TH.map(m=>`<option>${m}</option>`).join('');
   $('in-date').value=today();
 
-  showView('dashboard');
+  // Show store selector first
+  showView('store');
 
-  if(!isFirebaseConfigured()){
-    $('setup-warn').hidden=false;
-    return;
-  }
+  if(!isFirebaseConfigured()) return;
 
   try{
     const app=firebase.initializeApp(FIREBASE_CONFIG);
     fsDb=firebase.firestore(app);
   }catch(e){
     console.error('Firebase init error:',e);
-    showToast('⚠ Firebase เชื่อมต่อไม่ได้',true);
     return;
   }
-
-  // Settings listener
-  fsDb.doc('settings/current').onSnapshot(snap=>{
-    if(snap.exists) settings=snap.data();
-    else fsDb.doc('settings/current').set(DEFAULT_SETTINGS).catch(()=>{});
-    renderDash();
-  },err=>console.error('Settings error:',err));
-
-  // Sales listener — merge to preserve optimistic updates
-  fsDb.collection('sales').onSnapshot(snap=>{
-    const fresh={};
-    snap.docs.forEach(doc=>{fresh[doc.id]=doc.data();});
-    Object.assign(salesData,fresh);
-    Object.keys(salesData).forEach(k=>{if(!(k in fresh))delete salesData[k];});
-    try{localStorage.setItem('sd_sales',JSON.stringify(salesData));}catch(_){}
-    renderDash();
-    $('conn-dot').classList.remove('off');
-  },err=>console.error('Sales error:',err));
 }
 
 init();
