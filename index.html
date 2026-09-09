@@ -136,17 +136,19 @@ select,input{font-family:var(--body)}
 }
 .store-card-desc{font-size:.78rem;opacity:.7;text-align:center;font-weight:600;letter-spacing:.3px}
 .store-card-wpc{
-  background:linear-gradient(135deg,#FF6B35,#F4511E);
-  box-shadow:0 8px 32px rgba(244,81,30,.40);
-  color:#fff;
+  background:#fff;
+  box-shadow:0 8px 32px rgba(244,81,30,.18);
+  color:#F4511E;
+  border:2px solid rgba(244,81,30,.18);
 }
-.store-card-wpc:hover{box-shadow:0 12px 40px rgba(244,81,30,.55)}
+.store-card-wpc:hover{box-shadow:0 12px 40px rgba(244,81,30,.32)}
 .store-card-luck{
-  background:linear-gradient(135deg,#d6d0c7,#e5e0d4);
-  box-shadow:0 8px 32px rgba(0,0,0,.15);
+  background:#fff;
+  box-shadow:0 8px 32px rgba(0,0,0,.10);
   color:#2C1810;
+  border:2px solid rgba(0,0,0,.08);
 }
-.store-card-luck:hover{box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.store-card-luck:hover{box-shadow:0 12px 40px rgba(0,0,0,.18)}
 .store-card-icon{font-size:2.5rem;line-height:1}
 
 /* ── DASHBOARD LAYOUT ── */
@@ -419,12 +421,10 @@ select,input{font-family:var(--body)}
     <div class="store-sel-sub">เลือกร้านค้า</div>
     <div class="store-sel-cards">
       <div class="store-card store-card-wpc" onclick="selectStore('wpc')">
-        <div class="store-card-icon">🛒</div>
         <div class="store-card-name">WPC</div>
         <div class="store-card-desc">Shopee · TikTok · Lazada<br>Thaimart · Website</div>
       </div>
       <div class="store-card store-card-luck" onclick="selectStore('luck')">
-        <div class="store-card-icon">🍀</div>
         <div class="store-card-name">LUCK</div>
         <div class="store-card-desc">Shopee · Lazada · Website<br>Central · Line · TikTok</div>
       </div>
