@@ -114,41 +114,45 @@ select,input{font-family:var(--body)}
 /* ── STORE SELECTOR ── */
 .store-sel-bg{
   min-height:100dvh;
-  background:linear-gradient(160deg,#1a1a1a 0%,#2d2d2d 100%);
+  background:#D32F2F;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 20px;
+  padding:32px 20px;box-sizing:border-box;
+  position:relative;overflow:hidden;
 }
 .store-sel-logo{
   font-family:var(--num);font-size:3rem;font-weight:900;letter-spacing:4px;
-  color:#fff;margin-bottom:8px;text-align:center;
+  color:#fff;margin-bottom:4px;text-align:center;
+  position:relative;z-index:2;
+  text-shadow:0 2px 12px rgba(0,0,0,.2);
 }
-.store-sel-sub{font-size:.85rem;color:rgba(255,255,255,.45);margin-bottom:48px;letter-spacing:.5px}
-.store-sel-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;max-width:560px}
+.store-sel-sub{display:none}
+.store-sel-cards{
+  display:flex;flex-direction:column;gap:18px;
+  width:100%;max-width:320px;
+  position:relative;z-index:2;
+}
 .store-card{
-  flex:1;min-width:200px;max-width:240px;
-  border-radius:20px;padding:32px 24px;
-  display:flex;flex-direction:column;align-items:center;gap:16px;
-  cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;
+  width:100%;
+  border-radius:22px;padding:28px 24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;transition:transform .18s,box-shadow .18s;border:none;
 }
-.store-card:hover{transform:translateY(-4px)}
-.store-card-name{
-  font-family:var(--num);font-size:2.4rem;font-weight:900;letter-spacing:3px;
-}
+.store-card:hover{transform:translateY(-3px)}
+.store-card:active{transform:scale(.97)}
+.store-card-name{font-family:var(--num);font-size:2.4rem;font-weight:900;letter-spacing:3px}
 .store-card-desc{font-size:.78rem;opacity:.7;text-align:center;font-weight:600;letter-spacing:.3px}
 .store-card-wpc{
-  background:#fff;
-  box-shadow:0 8px 32px rgba(244,81,30,.18);
-  color:#F4511E;
-  border:2px solid rgba(244,81,30,.18);
+  background:#8B1A1A;
+  box-shadow:0 6px 28px rgba(0,0,0,.35);
+  color:#fff;
 }
-.store-card-wpc:hover{box-shadow:0 12px 40px rgba(244,81,30,.32)}
+.store-card-wpc:hover{box-shadow:0 10px 36px rgba(0,0,0,.45)}
 .store-card-luck{
-  background:#fff;
-  box-shadow:0 8px 32px rgba(0,0,0,.10);
-  color:#2C1810;
-  border:2px solid rgba(0,0,0,.08);
+  background:#8B1A1A;
+  box-shadow:0 6px 28px rgba(0,0,0,.35);
+  color:#fff;
 }
-.store-card-luck:hover{box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.store-card-luck:hover{box-shadow:0 10px 36px rgba(0,0,0,.45)}
 .store-card-icon{font-size:2.5rem;line-height:1}
 
 /* ── DASHBOARD LAYOUT ── */
@@ -410,7 +414,32 @@ select,input{font-family:var(--body)}
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--danger);color:#fff;box-shadow:0 4px 20px rgba(255,87,87,.3)}
-  #db-month-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;font-size:0.82em;}
+  ##db-month-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;font-size:0.68em;letter-spacing:0}
+
+/* ── Flicker lights ── */
+.flicker-wrap{position:absolute;inset:0;pointer-events:none;z-index:1}
+.fl{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,220,80,.55) 0%,transparent 68%);
+  animation:flk var(--d,2.2s) ease-in-out var(--delay,0s) infinite alternate;}
+.fl1{width:200px;height:200px;top:-50px;left:-60px;--d:2.1s;--delay:0s}
+.fl2{width:150px;height:150px;top:5%;right:-40px;--d:1.8s;--delay:.45s}
+.fl3{width:110px;height:110px;top:35%;left:0%;--d:2.5s;--delay:.9s}
+.fl4{width:170px;height:170px;bottom:-30px;right:-30px;--d:2.0s;--delay:.25s}
+.fl5{width:100px;height:100px;bottom:18%;left:2%;--d:1.6s;--delay:1.1s}
+.fl6{width:130px;height:130px;top:52%;right:0%;--d:2.3s;--delay:.65s}
+.fl7{width:80px;height:80px;top:72%;left:38%;--d:1.9s;--delay:1.4s}
+.fl8{width:220px;height:220px;bottom:-70px;left:-70px;--d:2.7s;--delay:.3s}
+@keyframes flk{
+  0%{opacity:.12;transform:scale(1)}
+  60%{opacity:.65;transform:scale(1.1)}
+  100%{opacity:.18;transform:scale(.93)}
+}
+/* ── Brand logos ── */
+.brand-svg{width:120px;height:auto;display:block}
+.luck-brand{
+  font-family:var(--num);font-size:3rem;font-weight:900;
+  letter-spacing:6px;color:#fff;line-height:1;
+}
 </style>
 </head>
 <body>
@@ -418,16 +447,34 @@ select,input{font-family:var(--body)}
 <!-- ═══════ STORE SELECTOR VIEW ═══════ -->
 <div id="view-store" class="view">
   <div class="store-sel-bg">
+    <!-- Flickering ambient lights -->
+    <div class="flicker-wrap" aria-hidden="true">
+      <span class="fl fl1"></span><span class="fl fl2"></span>
+      <span class="fl fl3"></span><span class="fl fl4"></span>
+      <span class="fl fl5"></span><span class="fl fl6"></span>
+      <span class="fl fl7"></span><span class="fl fl8"></span>
+    </div>
     <div class="store-sel-logo">YOD UP!</div>
-    <div class="store-sel-sub">เลือกร้านค้า</div>
     <div class="store-sel-cards">
+      <!-- WPC -->
       <div class="store-card store-card-wpc" onclick="selectStore('wpc')">
-        <div class="store-card-name">WPC</div>
-        <div class="store-card-desc">Shopee · TikTok · Lazada<br>Thaimart · Website</div>
+        <svg class="brand-svg" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Whistle body -->
+          <ellipse cx="100" cy="56" rx="50" ry="38" fill="white"/>
+          <!-- Mouthpiece tube -->
+          <rect x="12" y="44" width="56" height="20" rx="10" fill="white"/>
+          <!-- Air slot on top -->
+          <rect x="90" y="26" width="18" height="12" rx="5" fill="#8B1A1A"/>
+          <!-- Center pea -->
+          <circle cx="100" cy="56" r="12" fill="#8B1A1A"/>
+          <!-- Lanyard hole -->
+          <circle cx="142" cy="32" r="9" fill="#8B1A1A"/>
+          <circle cx="142" cy="32" r="5" fill="white"/>
+        </svg>
       </div>
+      <!-- LUCK -->
       <div class="store-card store-card-luck" onclick="selectStore('luck')">
-        <div class="store-card-name">LUCK</div>
-        <div class="store-card-desc">Shopee · Lazada · Website<br>Central · Line · TikTok</div>
+        <div class="luck-brand">luck</div>
       </div>
     </div>
   </div>
@@ -875,8 +922,8 @@ function renderDash(){
   /* แสดงช่วงรอบ: 24 เดือนก่อน – 23 เดือนนี้ */
   {
     const {startDate,endDate}=getPeriodRange(settings);
-    const fmt=d=>{const[y,m,dd]=d.split('-');return`${parseInt(dd)} ${MONTHS_SHORT[parseInt(m)-1]} ${(parseInt(y)+543).toString().slice(-2)}`;};
-    $('db-month-label').textContent=startDate?`${fmt(startDate)} – ${fmt(endDate)}`:`${settings.month||''} ${settings.year||''}`;
+    const fmt=d=>{const[y,m,dd]=d.split('-');return`${dd}/${m}/${(parseInt(y)+543).toString().slice(-2)}`;};
+    $('db-month-label').textContent=startDate?`${fmt(startDate)}-${fmt(endDate)}`:`${settings.month||''} ${settings.year||''}`;
   }
 
   const circ=2*Math.PI*68;
