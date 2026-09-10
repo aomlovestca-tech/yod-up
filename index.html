@@ -416,23 +416,36 @@ select,input{font-family:var(--body)}
 .toast.err{background:var(--danger);color:#fff;box-shadow:0 4px 20px rgba(255,87,87,.3)}
   ##db-month-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;font-size:0.68em;letter-spacing:0}
 
-/* ── Flicker lights ── */
-.flicker-wrap{position:absolute;inset:0;pointer-events:none;z-index:1}
-.fl{position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,240,120,.85) 0%,rgba(255,180,40,.3) 45%,transparent 70%);
-  animation:flk var(--d,1s) ease-in-out var(--delay,0s) infinite alternate;}
-.fl1{width:200px;height:200px;top:-50px;left:-60px;--d:.9s;--delay:0s}
-.fl2{width:150px;height:150px;top:5%;right:-40px;--d:.75s;--delay:.18s}
-.fl3{width:110px;height:110px;top:35%;left:0%;--d:1.05s;--delay:.38s}
-.fl4{width:170px;height:170px;bottom:-30px;right:-30px;--d:.82s;--delay:.11s}
-.fl5{width:100px;height:100px;bottom:18%;left:2%;--d:.68s;--delay:.55s}
-.fl6{width:130px;height:130px;top:52%;right:0%;--d:.95s;--delay:.29s}
-.fl7{width:80px;height:80px;top:72%;left:38%;--d:.78s;--delay:.63s}
-.fl8{width:220px;height:220px;bottom:-70px;left:-70px;--d:1.1s;--delay:.07s}
-@keyframes flk{
-  0%{opacity:.1;transform:scale(.9)}
-  50%{opacity:.9;transform:scale(1.15)}
-  100%{opacity:.15;transform:scale(.95)}
+/* ── Full-screen strobe effect ── */
+.store-sel-bg{animation:bg-breathe .45s ease-in-out infinite alternate;}
+@keyframes bg-breathe{
+  0%{background:#B71C1C;}
+  100%{background:#E53935;}
+}
+.strobe-wrap{position:absolute;inset:0;pointer-events:none;z-index:1;}
+.strobe-white,.strobe-red{position:absolute;inset:0;}
+/* White flash strobe */
+.strobe-white{
+  background:#fff;
+  animation:sw 1.1s linear infinite;
+}
+@keyframes sw{
+  0%,12%,20%,100%{opacity:0}
+  15%{opacity:.55}
+  17%{opacity:.1}
+  18%{opacity:.45}
+}
+/* Red flash strobe */
+.strobe-red{
+  background:#FF1744;
+  animation:sr .85s linear infinite;
+  animation-delay:.28s;
+}
+@keyframes sr{
+  0%,14%,22%,100%{opacity:0}
+  17%{opacity:.6}
+  19%{opacity:.1}
+  20%{opacity:.5}
 }
 /* ── Brand word ── */
 .brand-word{
@@ -440,6 +453,8 @@ select,input{font-family:var(--body)}
   letter-spacing:6px;color:#fff;line-height:1;
   text-shadow:0 2px 16px rgba(0,0,0,.3);
 }
+/* Equal height cards */
+.store-sel-cards .store-card{min-height:110px;}
 </style>
 </head>
 <body>
@@ -447,12 +462,10 @@ select,input{font-family:var(--body)}
 <!-- ═══════ STORE SELECTOR VIEW ═══════ -->
 <div id="view-store" class="view">
   <div class="store-sel-bg">
-    <!-- Flickering ambient lights -->
-    <div class="flicker-wrap" aria-hidden="true">
-      <span class="fl fl1"></span><span class="fl fl2"></span>
-      <span class="fl fl3"></span><span class="fl fl4"></span>
-      <span class="fl fl5"></span><span class="fl fl6"></span>
-      <span class="fl fl7"></span><span class="fl fl8"></span>
+    <!-- Strobe lights full-screen -->
+    <div class="strobe-wrap" aria-hidden="true">
+      <div class="strobe-white"></div>
+      <div class="strobe-red"></div>
     </div>
     <div class="store-sel-logo">YOD UP!</div>
     <div class="store-sel-cards">
