@@ -419,26 +419,26 @@ select,input{font-family:var(--body)}
 /* ── Flicker lights ── */
 .flicker-wrap{position:absolute;inset:0;pointer-events:none;z-index:1}
 .fl{position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,220,80,.55) 0%,transparent 68%);
-  animation:flk var(--d,2.2s) ease-in-out var(--delay,0s) infinite alternate;}
-.fl1{width:200px;height:200px;top:-50px;left:-60px;--d:2.1s;--delay:0s}
-.fl2{width:150px;height:150px;top:5%;right:-40px;--d:1.8s;--delay:.45s}
-.fl3{width:110px;height:110px;top:35%;left:0%;--d:2.5s;--delay:.9s}
-.fl4{width:170px;height:170px;bottom:-30px;right:-30px;--d:2.0s;--delay:.25s}
-.fl5{width:100px;height:100px;bottom:18%;left:2%;--d:1.6s;--delay:1.1s}
-.fl6{width:130px;height:130px;top:52%;right:0%;--d:2.3s;--delay:.65s}
-.fl7{width:80px;height:80px;top:72%;left:38%;--d:1.9s;--delay:1.4s}
-.fl8{width:220px;height:220px;bottom:-70px;left:-70px;--d:2.7s;--delay:.3s}
+  background:radial-gradient(circle,rgba(255,240,120,.85) 0%,rgba(255,180,40,.3) 45%,transparent 70%);
+  animation:flk var(--d,1s) ease-in-out var(--delay,0s) infinite alternate;}
+.fl1{width:200px;height:200px;top:-50px;left:-60px;--d:.9s;--delay:0s}
+.fl2{width:150px;height:150px;top:5%;right:-40px;--d:.75s;--delay:.18s}
+.fl3{width:110px;height:110px;top:35%;left:0%;--d:1.05s;--delay:.38s}
+.fl4{width:170px;height:170px;bottom:-30px;right:-30px;--d:.82s;--delay:.11s}
+.fl5{width:100px;height:100px;bottom:18%;left:2%;--d:.68s;--delay:.55s}
+.fl6{width:130px;height:130px;top:52%;right:0%;--d:.95s;--delay:.29s}
+.fl7{width:80px;height:80px;top:72%;left:38%;--d:.78s;--delay:.63s}
+.fl8{width:220px;height:220px;bottom:-70px;left:-70px;--d:1.1s;--delay:.07s}
 @keyframes flk{
-  0%{opacity:.12;transform:scale(1)}
-  60%{opacity:.65;transform:scale(1.1)}
-  100%{opacity:.18;transform:scale(.93)}
+  0%{opacity:.1;transform:scale(.9)}
+  50%{opacity:.9;transform:scale(1.15)}
+  100%{opacity:.15;transform:scale(.95)}
 }
-/* ── Brand logos ── */
-.brand-svg{width:120px;height:auto;display:block}
-.luck-brand{
-  font-family:var(--num);font-size:3rem;font-weight:900;
+/* ── Brand word ── */
+.brand-word{
+  font-family:var(--num);font-size:3.8rem;font-weight:900;
   letter-spacing:6px;color:#fff;line-height:1;
+  text-shadow:0 2px 16px rgba(0,0,0,.3);
 }
 </style>
 </head>
@@ -458,23 +458,11 @@ select,input{font-family:var(--body)}
     <div class="store-sel-cards">
       <!-- WPC -->
       <div class="store-card store-card-wpc" onclick="selectStore('wpc')">
-        <svg class="brand-svg" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Whistle body -->
-          <ellipse cx="100" cy="56" rx="50" ry="38" fill="white"/>
-          <!-- Mouthpiece tube -->
-          <rect x="12" y="44" width="56" height="20" rx="10" fill="white"/>
-          <!-- Air slot on top -->
-          <rect x="90" y="26" width="18" height="12" rx="5" fill="#8B1A1A"/>
-          <!-- Center pea -->
-          <circle cx="100" cy="56" r="12" fill="#8B1A1A"/>
-          <!-- Lanyard hole -->
-          <circle cx="142" cy="32" r="9" fill="#8B1A1A"/>
-          <circle cx="142" cy="32" r="5" fill="white"/>
-        </svg>
+        <div class="brand-word">WPC</div>
       </div>
       <!-- LUCK -->
       <div class="store-card store-card-luck" onclick="selectStore('luck')">
-        <div class="luck-brand">luck</div>
+        <div class="brand-word">luck</div>
       </div>
     </div>
   </div>
