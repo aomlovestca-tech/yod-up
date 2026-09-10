@@ -826,21 +826,35 @@ function getMonthKey(s){
   return `${y}-${String(mi+1).padStart(2,'0')}`;
 }
 
+/* รอบนับยอด: วันที่ 24 เดือนก่อน → วันที่ 23 เดือนปัจจุบัน */
+function getPeriodRange(s){
+  const y=parseInt((s.year||'2569'))-543;
+  const mi=MONTHS_TH.indexOf(s.month||'กันยายน');
+  if(mi<0) return {startDate:'',endDate:''};
+  const endDate=`${y}-${String(mi+1).padStart(2,'0')}-23`;
+  let py=y, pm=mi-1;
+  if(pm<0){pm=11;py-=1;}
+  const startDate=`${py}-${String(pm+1).padStart(2,'0')}-24`;
+  return {startDate,endDate};
+}
+
 function daysLeft(s){
   const y=parseInt(s.year)-543, mi=MONTHS_TH.indexOf(s.month);
   if(mi<0) return 0;
-  const last=new Date(y,mi+1,0), now=new Date(); now.setHours(0,0,0,0);
-  return Math.max(0,Math.round((last-now)/86400000));
+  /* นับถึงวันที่ 23 ของเดือนปัจจุบัน */
+  const end=new Date(y,mi,23), now=new Date(); now.setHours(0,0,0,0);
+  return Math.max(0,Math.round((end-now)/86400000));
 }
 
 function calcTotals(){
   const CH=getChMeta();
-  const mk=settings?getMonthKey(settings):null, tod=today();
+  const {startDate,endDate}=settings?getPeriodRange(settings):{startDate:'',endDate:''};
+  const tod=today();
   const grand={}, todayTot={};
   CH.forEach(c=>{grand[c.id]=0;todayTot[c.id]=0;});
   let gSum=0, tSum=0;
   Object.entries(salesData).forEach(([d,row])=>{
-    if(!mk||!d.startsWith(mk)) return;
+    if(startDate&&(d<startDate||d>endDate)) return;
     CH.forEach(c=>{const v=parseFloat(row[c.id]||0);grand[c.id]+=v;gSum+=v;});
     if(d===tod) CH.forEach(c=>{todayTot[c.id]=parseFloat(row[c.id]||0);tSum+=parseFloat(row[c.id]||0);});
   });
@@ -855,7 +869,12 @@ function renderDash(){
   const pct=tgt>0?Math.min(100,(grandSum/tgt)*100):0;
   const dl=daysLeft(settings), avg=dl>0?remain/dl:remain;
 
-  $('db-month-label').textContent=`${settings.month||''} ${settings.year||''}`;
+  /* แสดงช่วงรอบ: 24 เดือนก่อน – 23 เดือนนี้ */
+  {
+    const {startDate,endDate}=getPeriodRange(settings);
+    const fmt=d=>{const[y,m,dd]=d.split('-');return`${parseInt(dd)} ${MONTHS_TH[parseInt(m)-1]} ${parseInt(y)+543}`;};
+    $('db-month-label').textContent=startDate?`${fmt(startDate)} – ${fmt(endDate)}`:`${settings.month||''} ${settings.year||''}`;
+  }
 
   const circ=2*Math.PI*68;
   const trail=$('ring-trail');
@@ -879,9 +898,10 @@ function renderDash(){
   $('s-avg2').textContent   =fmtB(avg);
 
   const chs=settings.channels||(curStore==='luck'?DEFAULT_SETTINGS_LUCK.channels:DEFAULT_SETTINGS_WPC.channels);
-  const mk=getMonthKey(settings);
-  const todayRow=salesData[today()];
-  const todayInM=todayRow&&(todayRow.month===mk||today().startsWith(mk));
+  const {startDate,endDate}=getPeriodRange(settings);
+  const tod=today();
+  const todayRow=salesData[tod];
+  const todayInM=todayRow&&(!startDate||(tod>=startDate&&tod<=endDate));
 
   $('ch-rows').innerHTML=CH.map(meta=>{
     const ch=chs.find(c=>c.id===meta.id)||{target:0,hasTarget:false};
@@ -1004,10 +1024,11 @@ function toggleCh(id){$('ct-'+id).disabled=!$('cth-'+id).checked;}
 
 function loadDayData(){
   const CH=getChMeta();
-  const date=$('in-date').value, mk=settings?getMonthKey(settings):null, row=salesData[date];
+  const date=$('in-date').value, row=salesData[date];
+  const {startDate,endDate}=settings?getPeriodRange(settings):{startDate:'',endDate:''};
   CH.forEach(ch=>{
     const inp=$('d-'+ch.id);
-    if(inp) inp.value=(row&&(!mk||row.month===mk||date.startsWith(mk)))?(row[ch.id]||''):'';
+    if(inp) inp.value=(row&&(!startDate||(date>=startDate&&date<=endDate)))?(row[ch.id]||''):'';
   });
 }
 
@@ -1062,9 +1083,9 @@ async function saveSettings(){
 
 function renderHistory(){
   const CH=getChMeta();
-  const mk=settings?getMonthKey(settings):null;
+  const {startDate,endDate}=settings?getPeriodRange(settings):{startDate:'',endDate:''};
   const entries=Object.entries(salesData)
-    .filter(([d])=>!mk||d.startsWith(mk))
+    .filter(([d])=>!startDate||(d>=startDate&&d<=endDate))
     .sort(([a],[b])=>b.localeCompare(a));
   if(!entries.length){
     $('history-list').innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:.9rem">ยังไม่มีข้อมูลในเดือนนี้</div>';
